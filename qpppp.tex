@@ -201,19 +201,6 @@ Sahlin. Email: \href{mailto:ullrika.sahlin@cec.lu.se}{\nolinkurl{ullrika.sahlin@
 \textsuperscript{1} Centre for Environmental and Climate Science, Lund
 University, Lund, Sweden\\ \textsuperscript{2} Centre for Mathematical
 Sciences, Lund University, Lund, Sweden
-\begin{abstract}
-This paper provides a comprehensive overview of quantile-parameterized
-distributions (QPDs) as a tool for capturing expert predictions and
-parametric judgments. We survey a range of methods for constructing
-distributions that are parameterized by a set of quantile-probability
-pairs and describe an approach to generalizing them to enhance their
-tail flexibility. Furthermore, we delve into the extension of QPDs to
-the multivariate setting, surveying the approaches to construct
-bivariate distributions, which can be adopted to obtain distributions
-with quantile-parameterized margins. Through this review and synthesis
-of the previously proposed methods, we aim to enhance the understanding
-and utilization of QPDs in various domains.
-\end{abstract}
 \begin{keywords}
 \def\sep{;\ }
 quantile functions\sep quantile-parameterized distributions\sep expert
@@ -224,15 +211,13 @@ statistical distributions
 \section{Introduction}\label{introduction}
 
 Judgment plays a crucial role in transforming raw data into meaningful
-insights. For judgment to be useful, it needs to be translated into the
-language of mathematical models and assumptions. These models are
-designed to capture the expert's understanding of the world, including
-the causal links between relevant entities. The models serve as a
-representation of this understanding, while also accounting for any
-limitations in knowledge, which are treated as uncertainties. The
-process of elicitation involves translating the qualitative
-understanding of the problem at hand into quantitative models that can
-provide valuable insights.
+insights. To be useful, judgment must be translated into mathematical
+models and assumptions. These models are designed to capture the
+expert's understanding of the world, including the causal links between
+relevant entities. The models serve as a representation of this
+understanding, while also addressing knowledge limitations, treated as
+uncertainties. Elicitation involves translating qualitative
+understanding into quantitative models offering valuable insights.
 
 \subsection*{Past research}\label{past-research}
 \addcontentsline{toc}{subsection}{Past research}
@@ -253,12 +238,13 @@ boundedness that accounts for the nature of the elicited quantity.
 Several specialized distributions have been developed to facilitate
 smooth interpolation of probabilistic assessments. These distributions,
 parameterized by quantile-probability pairs, ensure that the elicited
-QPPs are exactly preserved (Keelin and Powley 2011; Powley 2013; Keelin
-2016; Christopher Campbell Hadlock 2017; Kevin J. Wilson et al. 2023).
-Quantile-parameterized distributions are particularly valuable thanks to
-the interpretability of their parameters. By leveraging the elicited
-quantiles, these distributions enable precise capturing of expert
-knowlegde while maintaining a high level of flexibility in modeling.
+quantile-probability pairs (QPPs) are exactly preserved (Keelin and
+Powley 2011; Powley 2013; Keelin 2016; Christopher Campbell Hadlock
+2017; Kevin J. Wilson et al. 2023). Quantile-parameterized distributions
+are particularly valuable thanks to the interpretability of their
+parameters. By leveraging the elicited quantiles, these distributions
+enable precise capturing of expert knowlegde while maintaining a high
+level of flexibility in modeling.
 
 We believe that the primary utility of QPDs lies in their ability to
 simplify the specification of probability distributions for model
@@ -289,32 +275,32 @@ distribution suitable for the task.
 
 In Section 2, we revisit the approaches to quantile parameterization of
 probability distributions and explore how QPDs can effectively describe
-expert beliefs regarding model parameters or predictions. Moving on to
-Section 3, we conduct a comprehensive review and comparison of various
-continuous univariate QPDs found in the literature. Specifically, we
-focus on the Myerson distribution and its generalization accommodating
-different tail thicknesses. To assess the flexibility and behavior of
-the QPDs, we compare their robust moments. This comparative analysis can
-guide the selection of an appropriate distribution to characterize the
-quantity of interest. In Section 4, we delve into several methods for
-extending univariate distributions to a multivariate setting. These
-methods include the utilization of standard multivariate distributions
-(Drovandi and Pettitt 2011), copulas (Hoff 2007), and bivariate
-quantiles (Nair and Vineshkumar 2023; Vineshkumar and Nair 2019). We
-show how these techniques can be applied to develop a bivariate version
-of the Generalized Myerson distribution and demonstrate its application
-in parametric and predictive elicitation. Finally, in Section 5, we
-discuss future research directions and potential applications of QPDs in
+expert beliefs regarding model parameters or predictions. In Section 3,
+we conduct a comprehensive review and comparison of various continuous
+univariate QPDs found in the literature. Specifically, we focus on the
+Myerson distribution and its generalization accommodating different tail
+thicknesses. We compare the robust moments of QPDs to assess their
+flexibility and behavior. This comparative analysis can guide the
+selection of an appropriate distribution to characterize the quantity of
+interest. In Section 4, we explore several methods for extending
+univariate distributions to a multivariate setting. These methods
+include the utilization of standard multivariate distributions (Drovandi
+and Pettitt 2011), copulas (Hoff 2007), and bivariate quantiles (Nair
+and Vineshkumar 2023; Vineshkumar and Nair 2019). We show how these
+techniques can be applied to develop a bivariate version of the
+Generalized Myerson distribution and demonstrate its application in
+parametric and predictive elicitation. Finally, in Section 5, we discuss
+future research directions and potential applications of QPDs in
 Bayesian analysis.
 
 \section{Quantile parameterization of probability
 distributions}\label{quantile-parameterization-of-probability-distributions}
 
-In Bayesian data analysis, a fundamental principle is that learning from
-data requires more than just formulating hypotheses and models. It
-necessitates the articulation of prior beliefs, expressing existing
-knowledge in a mathematical form and translating it into a probability
-distribution for the model parameters.
+A fundamental principle in Bayesian data analysis is that learning from
+data involves more than formulating hypotheses and models. It
+necessitates articulating prior beliefs, expressing existing knowledge
+mathematically, and translating it into probability distributions for
+model parameters.
 
 To accurately translate knowledge into the language of statistical
 models the encoding distribution needs to be flexible, the process
@@ -325,7 +311,7 @@ Morgan 2014), and then fitting a distribution to these pairs (O'Hagan
 2019). However, in practice, the choice of a parametric distribution to
 fit the elicited QPPs is often influenced by concerns about conjugacy
 with the selected statistical model that represents the data-generative
-process (the likelihood) and/or the availability of required
+process (the likelihood function) and/or the availability of required
 distribution functions and fitting algorithms in the software employed.
 Frequently, the selected distribution possesses fewer parameters than
 the number of elicited QPPs, which can result in a less-than-perfect fit
@@ -440,14 +426,14 @@ $Q_Y(u)$ & p-transformation & $Q_Y(H(u))$ & p-transformation of $Q_Y(u)$,\newlin
 
 \end{table}%
 
-The quantile-parameterized distributions described in this paper can be
-categorized into two groups based on their construction method. The
-first group comprises distributions that are \emph{directly}
-parameterized by the quantile-probability pairs (QPPs). This group
-includes the Myerson distribution (Myerson 2005), and the Johnson
-Quantile-Parameterized Distribution (Christopher C. Hadlock and Bickel
-2017, 2019). These distributions are constructed by reparameterizing or
-transforming existing distributions, following Gilchrist rules
+The quantile-parameterized distributions in this paper are categorized
+into two groups based on their construction method. The first group
+comprises distributions that are \emph{directly} parameterized by the
+quantile-probability pairs (QPPs). This group includes the Myerson
+distribution (Myerson 2005), and the Johnson Quantile-Parameterized
+Distribution (Christopher C. Hadlock and Bickel 2017, 2019). These
+distributions are constructed by reparameterizing or transforming
+existing distributions, following Gilchrist rules
 (Table~\ref{tbl-qf-trans}). The transformations used to construct them
 are detailed in the next section.
 
@@ -459,20 +445,19 @@ Q-Normal (Keelin and Powley 2011), Metalog (Keelin 2016), quantile
 mixtures (Peng, Li, and Uryasev 2023), the variant of the Generalized
 Lambda Distribution (GLD) by Chalabi et al (Chalabi, Scott, and Wuertz
 2012), and the quantile-parameterized Triangular (Two-Sided Power)
-distribution by Kotz and van Dorp (Kotz and Van Dorp 2004). The fitting
-methods for each of these distributions is described in the respective
-sub-sections below.
+distribution by Kotz and van Dorp (Kotz and Van Dorp 2004). Each
+distribution's fitting method is described in the respective subsections
+below.
 
 \section{Univariate quantile-parameterized
 distributions}\label{univariate-quantile-parameterized-distributions}
 
-In this section, we review various continuous univariate
-quantile-parameterized distributions found in the literature. We then
-discuss the generalized form for these distributions, based on the
-variations of these QPDs appearing in the literature. For each
-distribution, we present its quantile function and discuss the
-parameterization and feasibility conditions. The derivative and inverse
-of each distribution can be found in Appendix A.
+This section reviews various continuous univariate QPDs from the
+literature. We then discuss the generalized form for these
+distributions, based on the variations of these QPDs appearing in the
+literature. For each distribution, we present its quantile function and
+discuss the parameterization and feasibility conditions. The derivative
+and inverse of each distribution can be found in Appendix A.
 
 \subsection{Myerson distribution}\label{myerson-distribution}
 
@@ -526,7 +511,8 @@ distribution (\(0 < \beta < 1\)), the range is
 \((-\infty, q_2 - \frac{\rho}{\beta - 1})\). The limiting case of the
 skewed Myerson distribution \(\lim_{u \rightarrow 0} Q_Y(u\vert\theta)\)
 for \(\beta > 1\) (and the other limit for \(0 < \beta < 1\)) possesses
-some important properties that we discuss in Section 3.3 below.
+some important properties that we discuss in
+Section~\ref{sec-genmyerson} below.
 
 The basic quantile function (Gilchrist 2000; Lampasi 2008) underlying
 the Myerson distribution is a simple probit, \(S(u) = \Phi^{-1}(u)\),
@@ -688,8 +674,7 @@ log-logistic distribution, characterized by two shape parameters,
 corresponds to the shifted log-Cauchy distribution (Christopher C.
 Hadlock and Bickel 2019).
 
-\subsubsection{Generalized Myerson
-distributions}\label{generalized-myerson-distributions}
+\subsubsection{Generalized Myerson distributions}\label{sec-genmyerson}
 
 Following the approach in Hadlock and Bickel (Christopher C. Hadlock and
 Bickel 2019), Myerson distribution can be generalized by substituting
@@ -1936,7 +1921,7 @@ of the normal distribution with the mean \(\mu=q_2\) and standard
 deviation \(\sigma=\rho/\Phi^{-1}(1-\alpha))\).
 
 \subsection*{Generalized Myerson
-Distributions}\label{generalized-myerson-distributions-1}
+Distributions}\label{generalized-myerson-distributions}
 \addcontentsline{toc}{subsection}{Generalized Myerson Distributions}
 
 The Quantile Density Function of Generalized Myerson Distribution for
