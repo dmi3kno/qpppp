@@ -1,0 +1,889 @@
+\documentclass[ijds,nonblindrev]{informs4}
+
+\OneAndAHalfSpacedXI
+
+
+\usepackage{amsmath,amssymb,amsfonts}
+
+\usepackage{natbib}
+ \bibpunct[, ]{(}{)}{,}{a}{}{,}%
+ \def\bibfont{\small}%
+ \def\bibsep{\smallskipamount}%
+ \def\bibhang{24pt}%
+ \def\newblock{\ }%
+ \def\BIBand{and}%
+
+\usepackage{rotating}
+\usepackage{fancyvrb}
+
+%% Setup of theorem styles. Outcomment only one.
+%% Preferred default is the first option.
+\TheoremsNumberedThrough     % Preferred (Theorem 1, Lemma 1, Theorem 2)
+%\TheoremsNumberedByChapter  % (Theorem 1.1, Lema 1.1, Theorem 1.2)
+\ECRepeatTheorems
+\JOURNAL{Any INFORMS Journal}
+
+%% Setup of the equation numbering system. Outcomment only one.
+%% Preferred default is the first option.
+\EquationsNumberedThrough    % Default: (1), (2), ...
+%\EquationsNumberedBySection % (1.1), (1.2), ...
+
+% For new submissions, leave this number blank.
+% For revisions, input the manuscript number assigned by the on-line
+% system along with a suffix ".Rx" where x is the revision number.
+\MANUSCRIPTNO{IJDS-0001-1922.65}
+
+\begin{document}
+% Outcomment only when entries are known. Otherwise leave as is and
+%   default values will be used.
+%\setcounter{page}{1}
+%\VOLUME{00}%
+%\NO{0}%
+%\MONTH{Xxxxx}% (month or a similar seasonal id)
+%\YEAR{0000}% e.g., 2005
+%\FIRSTPAGE{000}%
+%\LASTPAGE{000}%
+%\SHORTYEAR{00}% shortened year (two-digit)
+%\ISSUE{0000} %
+%\LONGFIRSTPAGE{0001} %
+%\DOI{10.1287/xxxx.0000.0000}%
+
+% Author's names for the running heads
+% Sample depending on the number of authors;
+% \RUNAUTHOR{Jones}
+% \RUNAUTHOR{Jones and Wilson}
+% \RUNAUTHOR{Jones, Miller, and Wilson}
+% \RUNAUTHOR{Jones et al.} % for four or more authors
+% Enter authors following the given pattern:
+%\RUNAUTHOR{}
+
+% Title or shortened title suitable for running heads. Sample:
+% \RUNTITLE{Bundling Information Goods of Decreasing Value}
+% Enter the (shortened) title:
+\RUNTITLE{Formatting Instructions for INFORMS Author Styles}
+
+\TITLE{Formatting Instructions for INFORMS\break Author Styles}
+
+% Block of authors and their affiliations starts here:
+% NOTE: Authors with same affiliation, if the order of authors allows,
+%   should be entered in ONE field, separated by a comma.
+%   \EMAIL field can be repeated if more than one author
+\ARTICLEAUTHORS{%
+\AUTHOR{First Author}
+%,\textsuperscript{a} Second Author,\textsuperscript{b} Third Author,\textsuperscript{c} Fourth Author,\textsuperscript{c}
+
+\AFF{INFORMS, 5521 Research Park Drive, Suite 200, Catonsville, Maryland 21228 \EMAIL{mirko.janc@informs.org}}
+%\textsuperscript{b}School of Industrial Engineering, Good College, Collegeville, Maine 01234 \EMAIL{secauth@goodcoll.edu}; 
+%\textsuperscript{c}Their Common Affiliation \EMAIL{thauth@anywhere.edu, fourauth@anywhere.edu}
+
+%mirko.janc@informs.org
+\AUTHOR{Second Author}
+
+\AFF{School of Industrial Engineering, Good College, Collegeville, Maine 01234, \EMAIL{secauth@goodcoll.edu}}
+
+\AUTHOR{Third Author, Fourth Author}
+
+\AFF{Their Common Affiliation \{thauth@anywhere.edu, fourauth@anywhere.edu\}}
+}
+
+\ABSTRACT{%
+The abstract is limited to one paragraph and should contain no references and 
+no equations. Following the abstract, please enter the following items 
+(depending on the requirements of the particular INFORMS journal): (1) key 
+words (\texttt{KEYWORDS}), (2) MSC subject classification identifying primary and 
+secondary codes (see http://www.ams.org/msc) (\texttt{MSCCLASS}), (3) OR/MS 
+classification, also identifying primary and secondary (see 
+http://or.pubs.informs.org/Media/ORSubject.pdf) (\texttt{ORMSCCLASS}), (4) subject 
+classifications (\texttt{SUBJECTCLASS}), and (5) area of review (\texttt{AREAOFREVIEW}). In 
+later stages of manuscript processing, the history line (\texttt{HISTORY}) will be 
+added.}
+
+\KEYWORDS{INFORMS journals; LaTeX styles; author templates; instructions to authors}
+
+\maketitle
+
+\section{Templates and LaTeX Style}\label{sec1}
+
+INFORMS currently publishes 15 print journals and three more that are online 
+only. This document gives a brief description of 
+the LaTeX author style \texttt{informs4.cls}. A LaTeX template is 
+provided for each of the journals, giving further guidance on the order and 
+format of entering information, particularly article metadata. For every 
+journal there is a mandatory option when invoking the style, which consists 
+of the official abbreviation of the journal. This option will load 
+particular details not necessarily shared by all journals. For example,
+
+\begin{Verbatim}[fontsize=\small]
+     \documentclass[mnsc]{informs4}
+\end{Verbatim}
+
+Following is a list of all INFORMS journal abbreviations.
+
+\begin{Verbatim}[fontsize=\small]
+     deca    Decision Analysis
+     ijds    INFORMS Journal on Data Science
+     ijoc    INFORMS Journal on Computing
+     ijoo    INFORMS Journal on Optimization
+     inte    INFORMS Journal on Applied Analytics (formerly Interfaces)
+     isre    Information Systems Research 
+     ited    INFORMS Transactions on Education 
+     mnsc    Management Science 
+     mksc    Marketing Science
+     moor    Mathematics of Operations Research
+     msom    Manufacturing & Service Operations Management
+     opre    Operations Research
+     orsc    Organization Science
+     serv    Service Science
+     stsc    Strategy Science
+     stsy    Stochastic Systems
+     trsc    Transportation Science
+\end{Verbatim}
+
+Other important options that should be combined with the journal 
+abbreviation are \texttt{blindrev} and \texttt{nonblindrev}. Options 
+\texttt{blindrev} and \texttt{nonblindrev} are to be used when 
+preparing a LaTeX- keyed mansucript for review. For blind review journals, 
+option \texttt{blindrev} hides authors' names, the history line, and 
+acknowledgments (and visibly announces that fact). In both
+\texttt{blindrev} and \texttt{nonblindrev} cases, the printout clearly indicates  
+that the manuscript is submitted to ``X'' journal; the message is repeated 
+in all running heads to avoid the possibly incorrect impression that the 
+article is already accepted for publication.
+
+The line spread in the manuscript differs from journal to journal to 
+accommodate various editorial requirements. Follow the template (do not edit 
+the LaTeX preamble!) and instructions on the covers of the respective 
+journal. Standard LaTeX penalties that prevent inappropriate page breaks are 
+also removed. For tables no spread is applied because a larger table, as one 
+solid piece, could extend past the bottom edge of the page.
+
+Templates are provided one per journal to reflect particular relevant 
+details not shared by all INFORMS journals.
+
+\section{LaTeX Packages/Tools Available}\label{sec2}
+
+The \texttt{informs4.cls} house style will automatically load
+\texttt{amsmath}, \texttt{amssymb}, \texttt{ifthen},
+\texttt{url}, \texttt{graphicx}, \texttt{array}, and \texttt{theorem} styles/tools. 
+Package \texttt{dcolumn} is also loaded to help align numbers in tables 
+on decimals. Please refer to respective LaTeX documentation sources for 
+further explanation of how these packages work. By loading
+\texttt{amsmath}, the whole range of enhanced math typesetting commands is  
+available in addition to the standard LaTeX constructions. Art (figures) 
+should be included by using the syntax of the standard \texttt{graphicx} package.
+
+For reference processing, we use \texttt{natbib} because of its 
+versatility to handle the author-year system used by all INFORMS journals 
+except \texttt{moor}. Of course, it handles the numeric style used by 
+\texttt{moor} equally well. For handling internal (and external) links, 
+an option to use the \texttt{hyperref} package is offered within 
+templates. \texttt{natbib} and \texttt{hyperref} are loaded and 
+configured only in individual journal templates due to the high sensitivity 
+of the order of their actions (they redefine many internal LaTeX commands).
+
+\section{Author and Title Information}\label{sec3}
+
+Please enter author and title information per template. Besides the obvious 
+\texttt{TITLE}, there are \texttt{RUNAUTHOR} and
+\texttt{RUNTITLE}---shortened versions to be used in running heads (page headers). 
+
+In the general case of multiple authors, the style provides a block
+\texttt{ARTICLEAUTHORS}, used as
+\begin{Verbatim}[fontsize=\small]
+ \ARTICLEAUTHORS{%
+ \AUTHOR{<first author or first group of authors sharing the same affiliation} 
+ \AFF{<first affiliation>,
+   \EMAIL{<email of the first author>}}
+ \AUTHOR{<second author or second group sharing the same affiliation} 
+ \AFF{<second affiliation>,
+   \EMAIL{<email of the first person in the group>},
+   \EMAIL{<email of the second person in the group>},
+   ...}
+   ...}
+\end{Verbatim}
+     
+\noindent 
+Enter all authors names. If \texttt{hyperref} is used, the syntax for 
+URLs and e-mail addresses should be
+
+\begin{Verbatim}[fontsize=\small]
+     \href{http://www.informs.org}{INFORMS}
+     \href{mailto:pubtech@informs.org}{pubtech@informs.org}
+\end{Verbatim}
+
+\noindent
+where the second argument is printable/visible, while the first one 
+indicates the action browser will perform if pointed to the visible part of 
+the hyperlink. For details, please see the \texttt{hyperref} manual.
+
+\section{Internal Links}\label{sec4}
+
+To use the full potential of LaTeX and enable smooth revisions and updates 
+of the article and its references, all heads and subheads
+(\texttt{section}, \texttt{subsection}, \texttt{subsubsection}), equations  
+that will be referenced (not all equations!), theorem-like environments, and 
+especially citations (references) should be input properly, using symbolic 
+links via \texttt{$\backslash $label\{\}}, \texttt{$\backslash
+$ref\{\}}, and \texttt{$\backslash $cite\{\}} (and similar  
+commands). This is important regardless of whether you use \texttt{hyperref}
+
+\section{Mathematical Formulas}\label{sec5}
+
+Please see LaTeX documentation. We will only point out some details not 
+regularly available or often overlooked by LaTeX users.
+
+\subsection{Special Characters}\label{sec5.1}
+
+To help prevent incorrect coding for calligraphic and openface (blackboard 
+bold) letters, this style automatically loads \texttt{amsmath} and
+\texttt{amssymb}, so $\mathbb{R}$ and $\mathbb{N}$ are available and coded, respectively,
+\texttt{\$$\backslash $mathbb\{R\}\$} and 
+\texttt{\$$\backslash $mathbb\{N\}\$}. Standard calligraphic letters
+like $\mathcal{A}, \mathcal{D}, \mathcal{U}$, and $\mathcal{X}$ 
+should be coded as \texttt{\$$\backslash $mathcal\{A\}\$}, 
+\texttt{\$$\backslash $mathcal\{D\}\$}, 
+\texttt{\$$\backslash $mathcal\{U\}\$}, and 
+\texttt{\$$\backslash $mathcal\{X\}\$}. With standard fonts, only uppercase letters are 
+available in both cases.
+
+\subsection{Bold Mathematical Symbols}\label{sec5.2}
+
+Following the style guidelines of the American Mathematical Society, INFORMS 
+does not set math in bold, even if the environment is bold (as for example a 
+section title). However, bold symbols (roman and greek letters, and 
+occasionally digits) are in wide use for variety of reasons. We added macros 
+to facilitate their use in regular math without resorting to overarching 
+packages like \texttt{$\backslash $bm} or using the clumsy
+\texttt{$\backslash $mbox\{$\backslash $boldmath\$\$\}} construction. 
+
+This style provides the following sequence of bold symbols: {\bf A}
+to {\bf Z}; {\bf a} to {\bf z}; {\bf 0}, {\bf 1}, to {\bf 9};
+\mbox{\boldmath$\alpha$} to \mbox{\boldmath$\Omega$}; \mbox{\boldmath$\mathcal{A}$} to
+\mbox{\boldmath$\mathcal{Z}$}; as well as symbols \mbox{\boldmath$\imath, \jmath, \ell,
+\wp$}, and \mbox{\boldmath$\nabla$}. This list is keyed as 
+
+\begin{Verbatim}[fontsize=\small]
+     $\BFA$ to $\BFZ$; $\BFa$ to $\BFz$; $\BFzero$, $\bBFone$, to $\BFnine$; 
+     $\BFalpha$ to $\BFOmega$; $\BFcalA$ to $\BFcalZ$; as well as symbols 
+     $\BFimath$, $\BFjmath$, $\BFell$, $\BFwp$, and $\BFnabla$.
+\end{Verbatim}
+
+\subsection{Equation Counter}\label{sec5.3}
+
+Whenever possible, equation numbering should be consecutive through the 
+article (1, 2, \ldots). This setting is achieved by outcommenting the command
+
+\begin{Verbatim}[fontsize=\small]
+      \EquationNumbersThrough
+\end{Verbatim}
+
+\noindent
+in the journal template. If the complexity of the article really requires 
+it, equation numbering can be done by section. The template line
+\begin{Verbatim}[fontsize=\small]
+     %\EquationNumbersBySection
+\end{Verbatim}
+
+\noindent
+should be outcommented in this case. Whichever equation numbering system you 
+choose, please number only the equations that will be referenced. Supply 
+those equations with labels so that the referencing can be done by
+\texttt{$\backslash $ref\{\}} in the standard LaTeX process. Should you use  
+\texttt{eqnarray}, make sure that the last line does {\it not} end
+with \texttt{$\backslash \backslash $}, because that will set another blank line with  
+an equation number assigned to a formula that does not exist, and the 
+numbering will go awry.
+
+\subsection{Some Other Math Details}\label{sec5.4}
+
+We mention a couple of random but useful points.
+
+$\bullet$ For more convenient setting of matrices and matrix-like structures we 
+supplied four environments that fine-tune math spacing around large 
+delimiters. These are \texttt{Matrix}, \texttt{vMatrix},
+\texttt{bMatrix}, and \texttt{pMatrix}. For example, the Vandermonde determinant  
+can be set as
+\begin{align*}
+\arraycolsep6pt\begin{vmatrix}1&1&\hdots&1\\ x_1&x_2&\hdots&x_n\\
+\vdots&\vdots&\ddots&\vdots\\ x_1^{n-1}& x_2^{n-1}&\hdots&x_n^{n-1}
+\end{vmatrix}
+\end{align*}
+by using the code
+\begin{Verbatim}[fontsize=\small,xleftmargin=-0.5in]
+      \begin{vMatrix}{cccc}1&1&\hdots&1\\ x_1&x_2&\hdots&x_n\\
+      \vdots&\vdots&\ddots&\vdots\\ x_1^{n-1}&x_2^{n-1}&\hdots&x_n^{n-1}\end{vMatrix}
+\end{Verbatim}
+      
+The delimiters in the four constructs are, respectively, none, vertical 
+bars, brackets, and parentheses (no prefix, \texttt{v}, \texttt{b}, 
+and \texttt{p}).
+
+Besides the usual math operators like \texttt{$\backslash $sin},
+\texttt{$\backslash $max}, etc., we introduced \texttt{$\backslash
+$argmin} and \texttt{$\backslash $argmax} to achieve the proper spacing and 
+position of their limits in the display---centered under the whole operator, 
+not only under ``max'' or ``min.''
+
+In math display constructions where the ubiquituous \texttt{array} is 
+used, its elements are set in \texttt{$\backslash $textstyle}. Most 
+notably, fractions will be set small and lines will appear cramped. Limits 
+that are supposed to go under operators will appear as subscripts. It is a 
+matter of good mathematical exposition, rather than of any rigid rules, that 
+the \texttt{$\backslash $displaystyle} be used when a formula is 
+considered too small and tight. To save keystrokes in such cases, we 
+supplied \texttt{$\backslash $DS}, \texttt{$\backslash $TS}, and
+\texttt{$\backslash $mcr}, for, respectively, \texttt{$\backslash  
+$displaystyle}, \texttt{$\backslash $textstyle}, and the code that 
+should end any line instead of \texttt{$\backslash \backslash $} to 
+allow more generous spacing. Compare
+\begin{equation*}
+\begin{bmatrix}
+1&\tfrac{1}{a^2+b^2}\\
+\tfrac{1}{c^2+d^2}&\tfrac{1}{a^2+b^2}\tfrac{1}{c^2+d^2}
+\end{bmatrix},\quad\
+\begin{bmatrix}
+1&\dfrac{1}{a^2+b^2}\\
+\dfrac{1}{c^2+d^2}&\dfrac{1}{a^2+b^2}\dfrac{1}{c^2+d^2}
+\end{bmatrix},\quad \mbox{ and }\quad
+\begin{bmatrix}
+1&\dfrac{1}{a^2+b^2}\\[8pt]
+\dfrac{1}{c^2+d^2}&\dfrac{1}{a^2+b^2}\dfrac{1}{c^2+d^2}
+\end{bmatrix}.
+\end{equation*}
+In the middle, the \texttt{bMatrix} end of line is keyed as the standard 
+\texttt{$\backslash \backslash $}, instead of the enhanced
+\texttt{$\backslash $mcr} that is used in the last matrix. 
+
+\section{Lists}\label{sec6}
+
+INFORMS has a special style for lists to accommodate journal column width. 
+Typically lists are set as standard paragraphs, starting with the identifier 
+(number, bullet, etc.). To reflect this in an automated way, we turned the 
+standard settings for LaTeX lists ``upside down.''
+
+The style supplies \texttt{enumerate}, \texttt{itemize}, and 
+description lists \texttt{descr} in the above-mentioned paragraph style, 
+whereas the standard hanging lists, if absolutely necessary, can be entered 
+using list environments with names that are tentatively preceded by
+``\texttt{h}'' (for ``hang''): \texttt{henumerate}, \texttt{hitemize}, and  
+\texttt{hdescr}. From time to time, our authors use a bulleted list 
+within a numbered list. To get proper settings for
+this---\texttt{itemize}  within \texttt{enumerate}---we also
+introduced an \texttt{enumitemize} list. 
+
+Following is a sample of \texttt{enumerate} based on text that appears on 
+the inside cover of {\it Marketing Science}. In the first item there
+is also an \texttt{enumitemize} sublist to illustrate its use. 
+\begin{enumerate}
+\item Although our primary focus is on articles that answer important
+research questions in marketing using mathematical modeling, we also
+consider publishing many other different types of manuscripts. These
+manuscripts include
+\begin{itemize}
+\item empirical papers reporting significant findings (but without any specific 
+contribution to modeling),
+
+\item papers describing applications (emphasizing implementation issues), and
+
+\item scholarly papers reporting developments (in fundamental disciplines) of 
+interest to marketing.
+\end{itemize}
+
+\item Manuscripts should report the results of studies that make significant 
+contributions. Contributions can include significant substantive findings, 
+improvements in modeling methods, meaningful theoretical developments, 
+important methodological advances, tests of existing theories, comparisons 
+of methods and empirical investigations.
+
+\item {\it Marketing Science} promises to provide constructive, fair, and timely reviews with the goal of 
+identifying the best submissions for ultimate publication in the Journal.
+\end{enumerate}
+
+Compare it to \texttt{henumerate} (the bulleted list from the previous 
+example is run into the first item here):
+\begin{henumerate}
+\item Although our primary focus is on articles that answer important research 
+questions in marketing using mathematical modeling, we also consider 
+publishing many other different types of manuscripts. These manuscripts 
+include empirical papers reporting significant findings (but without any 
+specific contribution to modeling), papers describing applications 
+(emphasizing implementation issues), and scholarly papers reporting 
+developments (in fundamental disciplines) of interest to marketing.
+
+\item Manuscripts should report the results of studies that make significant 
+contributions. Contributions can include significant substantive findings, 
+improvements in modeling methods, meaningful theoretical developments, 
+important methodological advances, tests of existing theories, comparisons 
+of methods and empirical investigations.
+
+\item {\it Marketing Science} promises to provide constructive, fair, and timely reviews with the goal of 
+identifying the best submissions for ultimate publication in the Journal.
+
+
+\end{henumerate}
+Following is the same text formatted as a bulleted list per INFORMS style.
+
+\begin{itemize}
+\item Although our primary focus is on articles that answer important research 
+questions in marketing using mathematical modeling, we also consider 
+publishing many other different types of manuscripts. These manuscripts 
+include empirical papers reporting significant findings (but without any 
+specific contribution to modeling), papers describing applications 
+(emphasizing implementation issues), and scholarly papers reporting 
+developments (in fundamental disciplines) of interest to marketing.
+
+\item Manuscripts should report the results of studies that make significant 
+contributions. Contributions can include significant substantive findings, 
+improvements in modeling methods, meaningful theoretical developments, 
+important methodological advances, tests of existing theories, comparisons 
+of methods and empirical investigations.
+
+\item {\it Marketing Science} promises to provide constructive, fair, and timely reviews with the goal of 
+identifying the best submissions for ultimate publication in the Journal.
+\end{itemize}
+
+Description list (as in glossaries, for example) will be set per this 
+sample.
+
+{\bf Originality:} By submitting any manuscript, the author certifies that 
+the manuscript is not copyrighted and is not currently under review for any 
+journal or conference proceedings. If the manuscript (or any part of it) has 
+appeared, or will appear, in another publication of any kind, all details 
+must be provided to the editor in chief at the time of submission. . .
+
+{\bf Permissions:} Permission to make digital/hard copy of part or all of 
+this work for personal or classroom use is granted without fee provided that 
+copies are not made or distributed for profit or commercial advantage, the 
+copyright notice, the title of the publication and its date appear, and 
+notice is given that copying is by permission of the Institute for 
+Operations Research and the Management Sciences...
+
+{\bf Subscription Services:} {\it Marketing Science} (ISSN 0732-2399) is a quarterly journal 
+published by the Institute for Operations Research and the Management 
+Sciences at 7240 Parkway Drive, Suite 310, Hanover, MD 21076.
+
+\section{Theorems and Theorem-Like Environments}\label{sec7}
+
+Theorems and other theorem-like environments come in two main styles. 
+Theorems, lemmas, propositions, and corollaries are traditionally set in 
+italic type, and environments like examples and remarks are set in roman.
+
+To achieve automated distinction between these two main theorem styles (and 
+substyles that are, to some extent, journal dependent), we defined several 
+new theorem styles, most notably \texttt{TH} and \texttt{EX}. INFORMS 
+house style prefers that all theorems (say) are numbered consecutively 
+throughout. However, for longer papers with a more complex structure, 
+numbering by section is also provided. The choice must be made in the 
+template, because various counters defined in this way need to be declared 
+{\it after} \texttt{hyperref}
+
+The preferred version, \texttt{$\backslash $TheoremsNumberedThrough}, is 
+shown here
+
+\begin{Verbatim}[fontsize=\small]
+     \def\TheoremsNumberedThrough{%
+     \theoremstyle{TH}%
+     \newtheorem{theorem}{Theorem}
+     \newtheorem{lemma}{Lemma}
+     \newtheorem{proposition}{Proposition}
+     \newtheorem{corollary}{Corollary}
+     \newtheorem{claim}{Claim}
+     \newtheorem{conjecture}{Conjecture}
+     \newtheorem{hypothesis}{Hypothesis}
+     \newtheorem{assumption}{Assumption}
+     \theoremstyle{EX}
+     \newtheorem{remark}{Remark}
+     \newtheorem{example}{Example}
+     \newtheorem{problem}{Problem}
+     \newtheorem{definition}{Definition}
+     \newtheorem{question}{Question}
+     \newtheorem{answer}{Answer}
+     \newtheorem{exercise}{Exercise}
+     }
+\end{Verbatim}
+
+The other, two-tier numbering scheme, is defined via
+
+\begin{Verbatim}[fontsize=\small]
+     \def\TheoremsNumberedBySection{%
+     \theoremstyle{TH}%
+     \newtheorem{theorem}{Theorem}[section]
+     \newtheorem{lemma}{Lemma}[section]
+     \newtheorem{proposition}{Proposition}[section]
+     \newtheorem{corollary}{Corollary}[section]
+     \newtheorem{claim}{Claim}[section]
+     \newtheorem{conjecture}{Conjecture}[section]
+     \newtheorem{hypothesis}{Hypothesis}[section]
+     \newtheorem{assumption}{Assumption}[section]
+     \theoremstyle{EX}[section]
+     \newtheorem{remark}{Remark}[section]
+     \newtheorem{example}{Example}[section]
+     \newtheorem{problem}{Problem}[section]
+     \newtheorem{definition}{Definition}[section]
+     \newtheorem{question}{Question}[section]
+     \newtheorem{answer}{Answer}[section]
+     \newtheorem{exercise}{Exercise}[section]
+     }
+\end{Verbatim}
+
+\noindent
+Changing these numbering patterns by setting several different enunciations 
+on the same counter is strongly discouraged. The house style does not allow 
+Theorem 1 to be followed by Lemma 2 and then by Corollary~3.
+
+For those who require an exception to the rule, there are theorem styles 
+\texttt{THkey} and \texttt{EXkey}. These follow the general style of 
+\texttt{TH} and \texttt{EX} but if used with an optional argument, 
+allow for keying any text as a theorem title---numbering and embellishments 
+are taken away in this case. For example,
+
+\begin{Verbatim}[fontsize=\small]
+     {\theoremstyle{THkey}\newtheorem{mytheorem}{XXXXX}}
+\end{Verbatim}
+
+\noindent
+should be used {\it only} with the optional argument to get something like 
+
+\textsc{My 
+Dearest Most Important Theorem.} $a=a. $
+
+by keying
+
+\begin{Verbatim}[fontsize=\small]
+     \begin{mytheorem}[My Dearest Most Important Theorem.]$a=a$.
+     \end{mytheorem}
+\end{Verbatim}
+
+For proofs, there is \texttt{$\backslash $proof\{$<$proof name$>$\}}
+\ldots \texttt{$\backslash $endproof}. Here \texttt{$<$proof name$>$} may be 
+``\texttt{Proof.}'', or for example, ``\texttt{Proof of Theorem 
+$\backslash $label\{mytheor1\}.} '' In general, the end of proof should 
+be marked with the open box, aka \texttt{$\backslash $Halmos}
+($\square$). The proof can end after a normal sentence or after
+displayed math. \texttt{$\backslash $Halmos} should be entered manually (or not at all for the  
+non-QED-oriented authors).
+
+\section{Footnotes and Endnotes}\label{sec8}
+
+Use of footnotes varies among the INFORMS journals. Most journals allow 
+regular footnotes. However, \texttt{inte} does not allow footnotes, 
+whereas \texttt{opre} and \texttt{orsc} use endnotes instead of 
+footnotes. Details of how to use endnotes are explained in the comments of 
+the respective journals; template files. In the \texttt{opre} and
+\texttt{orsc} cases, package \texttt{endnotes.sty} is invoked to  
+automatically do the job.
+
+\section{Figures and Tables}\label{sec9}
+
+\texttt{graphicx} package should be used for inclusion of graphic files 
+(it is automatically loaded). Please see LaTeX documentation for details.
+
+Here we will concentrate on our macros for handling the whole trio: caption, 
+figure (art file), and figure note, as well as the counterpart trio for 
+tables. To enable proper style, all elements have to be captured at once, so 
+that the macro can analyze components for presence or absence of the caption 
+text, for presence or absence of a note, as well as for the tentative size 
+of a figure or a table, etc.
+
+\subsection{Figures}\label{sec9.1}
+
+A typical setting for figures is
+
+\begin{Verbatim}[fontsize=\small]
+     \begin{figure}
+     \FIGURE
+     {\includegraphics{figure-filename.pdf}}
+     {Text of the Figure Caption. \label{fig1}}
+     {Text of the notes.}
+     \end{figure}
+\end{Verbatim}
+
+\begin{figure}[!t]%figure 1
+\FIGURE{\fbox{\parbox{.8\textwidth}{\textcolor{white}{The result may look as shown in Figure 1 (just a rectangle to simplify this The result may look as shown in Figure 1 (just a rectangle to simplify this The result may look as shown in Figure 1 (just a rectangle to simplify this The result may look as shown in Figure 1 (just a rectangle to simplify this  The result may look as shown in Figure 1 (just a rectangle to simplify this The result may look as shown in Figure 1 (just a rectangle to simplify this}}}}
+%{\includegraphics{figure-filename.pdf}}
+{{Text of the Figure Caption}\label{fig1}}
+{Text of the notes.}
+\end{figure}
+
+\noindent
+The result may look as shown in Figure 1 (just a rectangle to simplify this 
+document). The typographical style and position of the caption (above or 
+below the figure) will be automatically set depending on the selected 
+journal option. To summarize, within \texttt{$\backslash $FIGURE}, the 
+order of entries is {\it art---caption (with label})---{\it notes.} Even if notes are not included, the third argument 
+to \texttt{$\backslash $FIGURE} must be present as an empty group \texttt{\{\}}, otherwise a syntax error will occur.
+
+Regarding the figure itself (``art''), the preferred formats are PDF or EPS, 
+whenever they can guarantee the vector format (drawing, not image). A common 
+problem is caused by transferring graphs in MS Office products via the 
+clipboard. In many cases the transfer creates a bitmap/image instead of the 
+original vector-based graph, which typically degrades the quality of art to 
+an unacceptably low level. Such images are also (almost) ineditable.
+
+If the art is a real image (photograph), JPEG and TIFF file formats are the 
+way to go. JPEG should be used with best quality in mind, not with the 
+smallest file size. The latter typically renders it useless for publishing. 
+TIFF is not ``lossy,'' so it is preferred in such cases. Make sure the 
+resolution is high enough: For photographs, resolution should be at least 
+300 dpi in both black and white and color cases. If there is a need to 
+reproduce a piece of line art from an old source, where an electronic file 
+is not available and the only option is to scan, resolution should not be 
+lower than 900 dpi.
+
+\subsection{Tables}\label{sec9.2}
+
+For inclusion of tables, a typical setting is
+\begin{Verbatim}[fontsize=\small]
+     \begin{table}
+     \TABLE
+     {Text of the Table Caption.\label{tab1}}
+     \begin{tabular}{<table format>} 
+      entries
+      \end{tabular}}
+     {Text of the notes.}
+     \end{table}
+\end{Verbatim}
+
+\noindent
+The order of entries in \texttt{$\backslash $TABLE} is {\it caption
+(with label}) {\it ---table body}---{\it notes}, because the  
+table caption is always set above the table body. Within the table, INFORMS 
+house style requires only three rules: above the table column heads, between 
+the table column heads and the table body, and after the table body. Of 
+course, straddle rules are acceptable if necessary (the
+``\texttt{$\backslash $cline\{3---5\}} stuff''). In extreme cases, a table may be  
+so complex that it needs to be set as a piece of artwork, in which case, a 
+properly formatted vector-based figure may be included instead of a keyed 
+table.
+
+To enhance the appearance of tables regarding vertical spacing,
+macros \texttt{$\backslash $up} and \texttt{$\backslash $down} should be used.  
+\texttt{$\backslash $up} should be used in rows following a rule 
+(increasing the space below the rule). \texttt{$\backslash $down}
+should be used in rows before a rule (increasing the space before the rule). 
+The following LaTeX detail shows how to use $\backslash $up and $\backslash $down.
+\begin{Verbatim}[fontsize=\small]
+     \hline
+     \up\down System & Benchmark\\ 
+     \hline
+     \up First entry...\\
+     ...
+     \down Last row\\
+     \hline
+\end{Verbatim}
+
+\subsection{Rotated Figures and Tables}\label{sec9.3}
+
+In cases where a figure, or more often a table, is so large that it cannot 
+reasonably fit in the portrait position, landscape setting is also 
+available. The whole environment (\texttt{figure} or \texttt{table}) should be surrounded by
+\begin{Verbatim}[fontsize=\small]
+     \begin{rotate}
+     <table or figure>
+     \end{rotate}
+\end{Verbatim}
+
+\noindent
+Before resorting to this extreme measure, please try smaller type size for 
+the table body or even some reworking/restructuring to make it fit.
+
+\section{About Appendices}\label{sec10}
+
+There are a variety of ways authors set their appendices. We tried to 
+standardize those options to make them work well with the internal linking 
+system. Two basic styles are available.
+
+\begin{enumerate}
+\item Appendix started by a general title ``Appendix,'' possibly followed by two 
+or more sections. It should be keyed as
+
+\begin{Verbatim}[fontsize=\small]
+     \begin{APPENDIX}{}
+     ...
+     \end{APPENDIX}
+\end{Verbatim}
+
+\noindent Subsections and subsubsections are also allowed. There are two subtypes of 
+such an appendix.
+\begin{itemize}
+\item If the empty braces after \texttt{\{APPENDIX\}} are left empty, the title of the 
+whole section will be ``Appendix.''
+
+\item If a specific title is entered, say ``Proofs of Lemmas and Theorems,'' the 
+appendix title will appear as ``Appendix. Proofs of Lemmas and Theorems.''
+\end{itemize}
+
+\begin{Verbatim}[fontsize=\small]
+     \begin{APPENDIX}{Proofs of Lemmas and Theorems}
+\end{Verbatim}
+
+\noindent 
+will start that appendix type.
+
+\item When you have two or more appendices that should logically be independent, 
+we provide the environment \texttt{APPENDICES}:
+\begin{Verbatim}[fontsize=\small]
+     \begin{APPENDICES}
+     ...
+     \end{APPENDICES}
+\end{Verbatim}
+\end{enumerate}
+
+\noindent 
+This environment has no arguments. It is supposed to have at least two 
+sections. Their titles will be set as ``Appendix A. \texttt{$<$Title
+of Appendix A$>$},'' ``Appendix B. \texttt{$<$Title of Appendix B$>$},'' etc. Subsections and subsubsections 
+are also allowed.
+
+The type size and relative position of the appendix with respect to the 
+acknowledgments is regulated by the style of the particular journal and 
+reflected in the journal template.
+
+\section{Citations and References}\label{sec11}
+
+INFORMS journals use the author-year style of references, with the exception 
+of \texttt{moor} that uses the numeric style. In addition to the text 
+here, a comprehensive (mixed) sample of references is added to this main 
+text.
+
+To set references in the INFORMS house style, it is best to use BibTeX 
+coupled with our \texttt{.bst} (BibTeX) style
+\texttt{informs2014.bst} (\texttt{informs2014trsc.bst} in the case of
+{\it Transportation Science}). For example, if your   
+file is named \texttt{mypaper.tex} and your BibTeX database is \texttt{myrefs.bib}, enter
+
+\begin{Verbatim}[fontsize=\small]
+     \bibliographystyle{informs2014}
+     \bibliography{myrefs}
+\end{Verbatim}
+
+\noindent 
+in the place where references should be set. After the first LaTeX run, 
+apply BibTeX 
+
+\begin{Verbatim}[fontsize=\small]
+     bibtex mypaper
+\end{Verbatim}
+
+\noindent 
+That will produce the \texttt{mypaper.bbl} file, as well as the
+\texttt{mypaper.blg} log file. Please read the \texttt{mypaper.blg} text file to  
+make sure your database is not missing a required field. Please keep and 
+submit the \texttt{.bbl file} along with your \texttt{.bib} file. Even 
+with best care, the database may have some inconsistencies, typos, and 
+inadequate journal abbreviations to adhere to the INFORMS style. The BibTeX 
+style cannot automatically rectify such problems, so we need your
+\texttt{.bbl} as an editable file for those minor corrections. 
+
+\subsection{Author-Year Style Labels}\label{sec11.1}
+
+In case you do not use BibTeX, your references are keyed (manually) in the 
+style found in INFORMS journals. Journal templates set the
+\texttt{natbib} configuration (in the preamble) to reflect the particular journal style. 
+To have \texttt{$\backslash $cite\{\}} work properly also for the 
+manually keyed references, you should follow the proper syntax as explained 
+in the following example.
+
+Consider the following five \texttt{$\backslash $bibitem} lines.
+
+\smallskip
+
+\begin{Verbatim}[fontsize=\scriptsize]
+\bibitem[{Psaraftis(1988)}]{Psaraftis:1998}
+\bibitem[{Psaraftis(1995)}]{Psaraftis:1995}
+\bibitem[{Regan et~al.(1998{\natexlab{a}})Regan, Mahmassani, and Jaillet}]{Regan:1998a}
+\bibitem[{Regan et~al.(1998{\natexlab{b}})Regan, Mahmassani, and Jaillet}]{Regan:1998b}
+\bibitem[{Rego and Roucairol(1995)}]{Rego}
+\end{Verbatim}
+
+\smallskip
+
+\noindent 
+Symbolic labels used in \texttt{$\backslash $cite\{\}} entries is 
+what is shown in the last set of braces: \texttt{Psaraftis:1998} through 
+\texttt{Rego}. For \texttt{natbib} to access names and years 
+separately, it is very important to strictly adhere to the syntax of the 
+optional argument to \texttt{$\backslash $bibitem} as shown. It is in the 
+form \texttt{$\backslash $bibitem[\{string1\}]}, where \texttt{string1} is composed as
+
+\begin{Verbatim}[fontsize=\small]
+     <short-name>(year<possible-alpha-label>)<long-name>
+\end{Verbatim}
+
+\noindent 
+Note that there are {\it no space} before and after \texttt{(} and \texttt{)}. The 
+\texttt{$<$long-name$>$} part can be omitted in journal styles so that \texttt{string1} simplifies to
+
+\begin{Verbatim}[fontsize=\small]
+     <short-name>(year<possible-alpha-label>)
+\end{Verbatim}
+
+\noindent 
+The \texttt{$<$possible-alpha-label$>$} part is only used when the
+\texttt{$<$short-name$>$} and \texttt{year} are identical, in which case we append  
+lowercase letters a, b, c, and so on. For a citation with one author, follow 
+examples from lines 1 and 2. For citations with two authors, see the last 
+line (Rego and Roucairol). Lines 3 and 4 show a sample where
+\texttt{$<$short-name$>$} and \texttt{year} are identical. Citations with three or  
+more authors abbreviate into ``first-author et al.''
+
+{\it Note.} In {\it Transportation Science} (\texttt{trsc}), the ``first-author et al.'' rule applies to {\it four} 
+authors or more; three-authors citations are set with their full last names. 
+Hence, lines 3 and 4 should be altered (again, we need the
+\texttt{.bbl} file) to read
+
+\begin{Verbatim}[fontsize=\scriptsize]
+\bibitem[{Regan, Mahmassani, and Jaillet(1998{\natexlab{a}})}]{Regan:1998a}
+\bibitem[{Regan, Mahmassani, and Jaillet(1998{\natexlab{b}})}]{Regan:1998b}
+\end{Verbatim}
+
+\noindent 
+Details of usage for \texttt{$\backslash $cite} are available from the \texttt{natbib} documentation. Following is a brief excerpt.
+
+\begin{Verbatim}[fontsize=\small]
+     \citet{key}                  ==>> Jones et al. (1990)
+     \citep{key}                  ==>> (Jones et al., 1990)
+     \citep[chap. 2]{key}         ==>> (Jones et al., 1990, chap. 2)
+     \citep[e.g.][]{key}          ==>> (e.g. Jones et al., 1990)
+     \citep[e.g.][p. 32]{key}     ==>> (e.g. Jones et al., p. 32)
+     \citeauthor{key}             ==>> Jones et al.
+     \citeyear{key}               ==>> 1990
+     \citealt{key}                ==>> Jones et al.\ 1990
+     \citealp{key}                ==>> Jones et al., 1990
+     \citealp{key,key2}           ==>> Jones et al., 1990; James et al., 1991
+     \citealp[p.~32]{key}         ==>> Jones et al., 1990, p.~32
+     \citetext{priv.\ comm.}      ==>> (priv.\ comm.)
+\end{Verbatim}
+
+\subsection{Numeric Style Labels}\label{sec11.12}
+
+The same five \texttt{$\backslash $bibitem} lines
+
+\begin{Verbatim}[fontsize=\scriptsize]
+\bibitem[{Psaraftis(1988)}]{Psaraftis:1998}
+\bibitem[{Psaraftis(1995)}]{Psaraftis:1995}
+\bibitem[{Regan et~al.(1998{\natexlab{a}})Regan, Mahmassani, and Jaillet}]{Regan:1998a}
+\bibitem[{Regan et~al.(1998{\natexlab{b}})Regan, Mahmassani, and Jaillet}]{Regan:1998b}
+\bibitem[{Rego and Roucairol(1995)}]{Rego}
+\end{Verbatim}
+
+\noindent
+in the numeric style will be fine. The only change is the removal of the now 
+unnecessary labels ``a'' and ``b'' (where applicable), because the reference 
+counter is what will distinguish such cases. The above-described command 
+\texttt{$\backslash $cite} and its derivations \texttt{$\backslash 
+$citet}, \texttt{$\backslash $citep}, etc. for \texttt{natbib} will 
+behave differently in the numeric style. A brief overview follows.
+
+\begin{Verbatim}[fontsize=\small]
+     \citet{jon90}                 ==>> Jones et al. [21]
+     \citet[chap.~2]{jon90}        ==>> Jones et al. [21, chap.~2]
+     \citep{jon90}                 ==>> [21]
+     \citep[chap.~2]{jon90}        ==>> [21, chap.~2]
+     \citep[see][]{jon90}          ==>> [see 21]
+     \citep[see][chap.~2]{jon90}   ==>> [see 21, chap.~2]
+     \citep{jon90a,jon90b}         ==>> [21, 32]
+\end{Verbatim}
+
+
+\end{document}

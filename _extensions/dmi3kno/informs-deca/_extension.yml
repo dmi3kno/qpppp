@@ -1,0 +1,55 @@
+title: INFORMS Decision Analysis Template
+author: Dmytro Perepolkin
+version: 0.1.0
+contributes:
+  formats:
+    common:
+      # define below YAML configuration common to all formats
+      number-sections: true
+      #filters:
+        # You can include here Lua filters from your extension format
+      #  - color-text.lua
+      shortcodes:
+        # You can include here Lua filters defining shortcodes from your extension
+        - shortcodes.lua
+      knitr:
+        opts_chunk:
+          echo: false
+    pdf:
+      # define default configuration for the pdf version of your format
+      documentclass: informs4
+      journal: deca
+      classoption:
+        - fleqn
+      include-in-header:
+        - "partials/_informs_header.tex"
+      format-resources:
+        # Add here the resources required for the PDF rendering
+        - informs4.cls
+        - informs2014.bst
+        - informs_Logo.pdf
+        - eqndefns-center.sty
+        - eqndefns-left.sty
+      template-partials:
+        # Add here the partials your format is using
+        - "partials/doc-class.tex"
+        - "partials/title.tex"
+        - "partials/before-body.tex"
+      colorlinks: true
+      #urlcolor: red
+      #fig-width: 6.5
+      #fig-height: 4.5
+      #number-sections: true
+      biblio-style: informs2014
+      cite-method: natbib
+      # Set this below (`biblio-config: false`) if your cls already load a bst file
+      # biblio-config: false
+      # Content to add in header that your format is using
+      header-includes: |
+        \usepackage{orcidlink}
+        \definecolor{mypink}{RGB}{219, 48, 122}
+    html:
+      toc: true
+      theme: custom.scss
+      # Use a CSL file to style (https://www.zotero.org/styles/)
+      csl: https://www.zotero.org/styles/journal-of-institutional-and-theoretical-economics

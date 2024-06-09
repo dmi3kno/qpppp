@@ -1,0 +1,168 @@
+
+%%% OPRE uses endnotes. If you do not use them, put a percent sign before
+%%% the \theendnotes command. This template does show how to use them.
+%\usepackage{endnotes}
+%\let\footnote=\endnote
+%\let\enotesize=\normalsize
+%\def\notesname{Endnotes}%
+%\def\makeenmark{$^{\theenmark}$}
+%\def\enoteformat{\rightskip0pt\leftskip0pt\parindent=1.75em
+%	\leavevmode\llap{\theenmark.\enskip}}
+
+% Private macros here (check that there is no clash with the style)
+% figure packages
+%\usepackage{graphicx} % already handled in graphics.tex
+\usepackage{eqndefns-left}
+%\usepackage{multirow} % already handled in tables.tex
+\usepackage{hhline}
+
+% caption package
+\usepackage[small, margin=1cm]{caption}
+
+% appendix package
+\usepackage{appendix}
+% color packages
+\usepackage{color}
+\definecolor{strcolor}{rgb}{0.6, 0.2, 0.6}
+\definecolor{commentcolor}{rgb}{0.3125, 0.5, 0.3125}
+\definecolor{keycol}{rgb}{0, 0, 1}
+
+
+% revision
+\newcommand{\rev}[1]{{\color{red} #1}}
+
+% math packages
+%\usepackage{amssymb}
+%\usepackage{amsmath}
+\usepackage{bbm}
+
+% Code package
+\usepackage{listings}
+\lstset{
+	emph={ROVar, ROUn, ROVarDR, ROExpr, RONormInf, RONorm1, RONorm2,ROConstraint,ROExpect, ROSq, ROConstraintSet,ROIntVar,ROBinVar, ROInfinity,ROModel,ROVarDRArray, ROVarArray, ROMinimize,ROUnArray, ROAbs, ROPos, ROSum, int},
+	emphstyle={\color{strcolor}\bfseries},
+	keywordstyle={\color{blue}\bfseries},
+	commentstyle={\color{commentcolor}},
+	stringstyle={\color{strcolor}\bfseries},
+	language=C++,                % choose the language of the code
+	basicstyle={\ttfamily\footnotesize}, % the size of the fonts that are used for the code
+	numbers=left,                   % where to put the line-numbers
+	numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+	stepnumber=1,                   % the step between two line-numbers. If it's 1 each line will be numbered
+	numbersep=5pt,                  % how far the line-numbers are from the code
+	backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+	showspaces=false,               % show spaces adding particular underscores
+	showstringspaces=false,         % underline spaces within strings
+	showtabs=false,                 % show tabs within strings adding particular underscores
+	frame=single,	                	% adds a frame around the code
+	tabsize=2,	                		% sets default tabsize to 2 spaces
+	captionpos=b,                   % sets the caption-position to bottom
+	breaklines=true,                % sets automatic line breaking
+	breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+	escapeinside={\%*}{*)},         % if you want to add a comment within your code
+	keywords=[1]{for, break, if, else, function}
+}
+\renewcommand{\lstlistingname}{Code Segment}
+
+% hyperlinks packages
+%\usepackage{hyperref}
+\usepackage{url}
+
+% numbering
+%\numberwithin{equation}{section}
+%\numberwithin{table}{section}
+%\numberwithin{figure}{section}
+
+% Equation environments
+\newcommand {\bea}{\begin{eqnarray}}
+	\newcommand {\eea}{\end{eqnarray}}
+\newcommand {\E}[1]{\mathrm{E}\left( #1 \right)}
+\newcommand {\Ep}[2]{{\mathrm{E}_{\mathbb{P}_{#1}} \left( #2 \right)}}
+\newcommand {\supEp}[1]{\displaystyle \sup_{\mathbb{P} \in \mathbb{F}} \Ep{}{#1}}
+\newcommand {\supEpf}[2]{\displaystyle \sup_{\mathbb{P} \in \mathbb{F}_{#1}} \Ep{}{#2}}
+\newcommand {\pos}[1]{\paren{#1}^+}
+\renewcommand {\neg}[1]{\paren{#1}^-}
+\newcommand {\pibound}[1]{\ensuremath{\pi^{#1}\paren{r^0, \mb{r}}}}
+\newcommand {\etabound}[1]{\ensuremath{\eta^{#1}\paren{r^0, \mb{r}}}}
+\newcommand \conv {\mathrm{conv}}
+\newcommand {\p}{{\rm P}}
+% mb
+\newcommand{\mb}[1]{\mbox{\boldmath \ensuremath{#1}}}
+\newcommand{\mbt}[1]{\mb{\tilde{#1}}}
+\newcommand{\mbb}[1]{\mb{\bar{#1}}}
+\newcommand{\mbbs}[1]{\mbb{\scriptstyle{#1}}}
+\newcommand{\mbh}[1]{\mb{\hat{#1}}}
+\newcommand{\mbth}[1]{\mbt{\hat{#1}}}
+\newcommand{\mbc}[1]{\mb{\check{#1}}}
+\newcommand{\mbtc}[1]{\mbt{\check{#1}}}
+\newcommand{\mbs}[1]{\mb{\scriptstyle{#1}}}
+\newcommand{\mbst}[1]{\mbs{\tilde{#1}}}
+\newcommand{\mbsh}[1]{\mbs{\hat{#1}}}
+% mc
+%\newcommand{\mc}[1]{\mbox{\ensuremath{\mathcal{#1}}}}
+\newcommand{\mch}[1]{\hat{\mc{#1}}}
+\newcommand{\mcs}[1]{\mc{\scriptstyle{#1}}}
+\newcommand{\mcss}[1]{\mc{\scriptscriptstyle{#1}}}
+\newcommand{\mcsh}[1]{\hat{\mcs{#1}}}
+\newcommand{\mbss}[1]{{\mbox{\boldmath \tiny{$#1$}}}}
+\newcommand{\eucnorm}[1]{\left\| #1 \right\|_2}
+\newcommand{\dpv}{\displaystyle \vspace{3pt}}
+\newcommand{\diag}[1]{\textbf{diag}\paren{#1}}
+\newcommand{\yldrk}{\mb{y}^k\paren{\mbt{z}}}
+\newcommand{\abs}[1]{\left| #1 \right|}
+\DeclareMathOperator{\CVaR}{CVaR}
+\DeclareMathOperator{\VaR}{VaR}
+%\DeclareMathOperator{\argmin}{\arg\min}
+% combinations
+\renewcommand{\mbc}[1]{\mb{\mc{#1}}}
+%misc
+\newcommand{\ceil}[1]{\left\lceil #1  \right\rceil}
+
+%\newtheorem{theorem}{Theorem}
+%\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{conj}{Conjecture}
+\newtheorem{coro}{Corollary}
+%\newtheorem{claim}{Claim}
+\newtheorem{Defi}{Definition}
+\newtheorem{algorithm}{Algorithm}
+%\newtheorem{assumption}{Assumption}
+
+\newcommand{\eg}{\textit{e.g.}}
+\newcommand{\ie}{\textit{i.e.}}
+\renewcommand{\Re}{\mathbb{R}}
+
+%\renewcommand{\bigtimes}{\mathop{\rm \text{\Large{$\times$}}}}
+
+\def\blot{\quad \mbox{$\vcenter{ \vbox{ \hrule height.4pt
+				\hbox{\vrule width.4pt height.9ex \kern.9ex \vrule width.4pt}
+				\hrule height.4pt}}$}}
+
+% Natbib setup for author-year style
+\usepackage{natbib}
+\bibpunct[, ]{(}{)}{,}{a}{}{,}%
+\def\bibfont{\fontsize{8}{9.5}\selectfont}%
+\def\bibsep{0pt}%
+\def\bibhang{16pt}%
+\def\newblock{\ }%
+\def\BIBand{and}%
+
+%% Setup of theorem styles. Outcomment only one.
+%% Preferred default is the first option.
+\TheoremsNumberedThrough     % Preferred (Theorem 1, Lemma 1, Theorem 2)
+%\TheoremsNumberedByChapter  % (Theorem 1.1, Lema 1.1, Theorem 1.2)
+\ECRepeatTheorems
+
+%% Setup of the equation numbering system. Outcomment only one.
+%% Preferred default is the first option.
+\EquationsNumberedThrough    % Default: (1), (2), ...
+%\EquationsNumberedBySection % (1.1), (1.2), ...
+
+% In the reviewing and copyediting stage enter the manuscript number.
+%\MANUSCRIPTNO{} % When the article is logged in and DOI assigned to it,
+%   this manuscript number is no longer necessary
+
+%\newdimen\setvrulersecondcolumnheightdimen%
+%\newbox\setvrulersecondcolumnheightdimenbox%
+%%%%%%%%%%%%%%%%%
+\gdef\AQ#1{}
+\gdef\CQ#1{}

@@ -1,0 +1,64 @@
+$-- Provides configuration of document metadata for writing the title block.
+$-- Note that in addition to these templates and partials, Quarto will also make normalized authors and affiliations data available to the template,
+$-- making is easy to write custom title blocks against a standard schema.
+$--
+$-- %%%% TODO %%%%%
+$-- Customize is needed, like below for printing the authors. Otherwise remove this partials to use Quarto default one.
+$-- %%%%%%%%%%%%%%%%
+
+%	\AIA
+% \setcounter{page}{1} %
+% \VOL{0}%
+% \NO{0}%
+% \MONTH{Xxxxx}%
+% \YEAR{2024}%
+% \FIRSTPAGE{1}%
+% \LASTPAGE{16}%
+% \FIRSTPAGEAIA{1}%
+% \LASTPAGEAIA{16}%
+\def\COPYRIGHTHOLDER{INFORMS}%
+$if(year)$
+\def\COPYRIGHTYEAR{$year$}%
+$endif$
+$if(doi)$
+\def\DOI{\fontsize{7.5}{9.5}\selectfont\sf\bfseries\noindent $doi$$endif$$if(wordcount)$\CQ{Word count = $wordcount$}}$endif$
+
+%\def\RECEIVED{November 1, 2016}
+%\def\REVISED{June 22, 2017; October 6, 2017}
+%\def\ACCEPTED{November 15, 2017}
+% \PUBONLINEAIA{}
+$if(runauthor)$
+	\RUNAUTHOR{$runauthor$} %
+$endif$
+
+$if(title)$
+$if(runtitle)$
+	\RUNTITLE{$runtitle$}
+$else$
+  \RUNTITLE{$title$}
+$endif$
+\TITLE{$title$}
+$endif$
+
+\ARTICLEAUTHORS{
+$for(by-author)$
+\AUTHOR{$it.name.literal$}$if(it.corresponding)$\textsuperscript{*}$endif$$for(it.affiliations/first)$\AFF{$it.name$$if(it.department)$, $it.department$$endif$}$endfor$
+$endfor$
+}
+%\date{$date$}%
+$if(fundingtxt)$
+\FUNDING{$fundingtxt$}
+$endif$
+
+$if(subjectclass)$
+\SUBJECTCLASS{$for(subjectclass)$$subjectclass$$sep$; $endfor$}
+$endif$
+
+$if(areaofreview)$
+\AREAOFREVIEW{$areaofreview$}
+$endif$
+
+$if(keywords)$
+\KEYWORDS{$for(keywords)$$keywords$$sep$; $endfor$}
+$endif$
+

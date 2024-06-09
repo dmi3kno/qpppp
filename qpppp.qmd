@@ -1,9 +1,18 @@
 ---
 title: Quantile-parameterized distributions for expert knowledge elicitation
 format:
-  tandf-pdf:
-    keep-tex: true  
-  tandf-html: default
+  informs-deca-pdf:
+    keep-tex: true
+    blind: true
+    include-in-header:
+      text: |
+        %% Uncomment a line to change font and spacing
+        %\SingleSpacedXI % 11pt and 1x line spacing
+        %\SingleSpacedXII % 12pt and 1x line spacing
+        %\OneAndAHalfSpacedXI % 11pt and 1.5x line spacing
+        \OneAndAHalfSpacedXII % 12pt and 1.5x line spacing
+        %\DoubleSpacedXI % 11pt and 2x line spacing
+        %\DoubleSpacedXII % 12pt and 2x line spacing
 author:
   - name: Dmytro Perepolkin
     affiliations:
@@ -36,7 +45,16 @@ affiliations:
     city: Lund
     country: Sweden
     postal-code: 223 62
+year: 2024
+#doi: "https://doi.org/10.1287/opre.2017.1714"
+#wordcount: 9740
+runauthor: "Perepolkin et al."
+runtitle: "QPDs for EKE"
 abstract: |
+  This paper provides a comprehensive overview of quantile-parameterized distributions (QPDs) as a tool for capturing expert predictions and parametric judgments. We survey a range of methods for constructing distributions that are parameterized by a set of quantile-probability pairs and describe an approach to generalizing them to enhance their tail flexibility. Furthermore, we delve into the extension of QPDs to the multivariate setting, surveying the approaches to construct bivariate distributions, which can be adopted to obtain distributions with quantile-parameterized margins. Through this review and synthesis of the previously proposed methods, we aim to enhance the understanding and utilization of QPDs in various domains.
+fundingtxt: "U Sahlin was funded by the Crafoord Foundation (ref 20200626)."
+areaofreview: "Decision Analysis"
+#subjectclass: [Fourier-Motzkin elimination, adjustable robust optimization, linear decision rules, redundant constraint identification]
 keywords: 
   - quantile functions
   - quantile-parameterized distributions
@@ -157,8 +175,7 @@ qf_tbl <- tibble::tribble(
 qf_tbl$Rule <- kableExtra::linebreak(qf_tbl$Rule)
 qf_tbl$`Resulting variable` <- kableExtra::linebreak(qf_tbl$`Resulting variable`)
 
-kableExtra::kbl(qf_tbl,escape=FALSE, format = "latex", booktabs = TRUE,
-                caption = "", position="ht") %>% 
+kableExtra::kbl(qf_tbl,escape=FALSE, format = "latex", booktabs = TRUE) %>% 
   kableExtra::kable_styling(full_width = FALSE) %>% 
   kableExtra::column_spec(2, width="3cm") %>% 
   kableExtra::column_spec(3, width="2.5cm") %>% 
@@ -205,19 +222,19 @@ Hadlock and Bickel [@hadlock2017QuantileparameterizedMethodsQuantifying] reviewe
 The J-QPD-B distribution is obtained by applying the inverse-probit transformation to the Johnson SU quantile function $Q_{SU}(u) = \xi + \lambda\sinh(\delta(S(u) + \gamma))$, where $\delta$ and $\gamma$ are two shape parameters. This function is then rescaled to the compact interval $[l_b, u_b]$. The J-QPD-B quantile function is
 
 $$
-\begin{gathered}
-Q_B(u\vert q_1, q_2, q_3, \alpha)=
+Q_B(u)=
 \begin{cases}
-l+(u_b-l_b)S^{-1}(\xi+\lambda\sinh(\delta(S(u)+nc))), \quad &n\neq0\\
-l+(u_b-l_b)S^{-1}\left(B+\left(\frac{H-L}{2c}\right)S(u)\right), \quad &n=0
+l+rS^{-1}\left[Q_{SU}(u)\right], n\neq0\\
+l+rS^{-1}\left[B+\kappa S(u)\right],n=0
 \end{cases}
-\end{gathered}
 $$
 
 where
 
 $$
 \begin{gathered}
+Q_{SU}(u) = \xi + \lambda\sinh(\delta(S(u) + \gamma))\\
+r=(u_b-l_b); \quad \gamma=nc; \quad \kappa=\frac{H-L}{2c}\\
 S(u)=\Phi^{-1}(u); \quad c=S(1-\alpha);\\
 L=S\left(\frac{q_1-l_b}{u_b-l_b}\right); \quad  B=S\left(\frac{q_2-l_b}{u_b-l_b}\right);\\
 H=S\left(\frac{q_3-l_b}{u_b-l_b}\right); \quad n=\text{sgn}(L+H-2B)\\
@@ -299,13 +316,13 @@ wrap_plots(p1,p2, guides = "collect")
 
 The left panel in @fig-jqpd1 showcases the J-QPD-B quantile function, which is parameterized using 0.25-SPT and 0.01-SPT assessments of the proportion of fruit infested with *Citripestis sagittiferella*, as elicited by [@efsa2023RiskAssessmentCitripestis]. The dashed line represents the Beta distribution fitted by the authors. The J-QPD-B, being parameterized by an SPT, effectively captures three of the five parameterizing quantiles, while the Beta distribution only provides an approximation. Finding parameters of Beta distribution requires an optimization step.
 
-The J-QPD-S distribution is a semi-bounded variant of the distribution that employs exponentiated hyperbolic arcsine transformations of the Johnson's SU quantile function  [@hadlock2017JohnsonQuantileParameterizedDistributions]
+The J-QPD-S distribution is a semi-bounded variant of the distribution that employs exponentiated hyperbolic arcsine transformations of the Johnson's SU quantile function $Q_{SUa}(u) = \xi + \lambda\sinh\left[\text{asinh}(\delta S(u)) + \text{asinh}(\delta\gamma)\right]$ located at zero $\xi=0$  [@hadlock2017JohnsonQuantileParameterizedDistributions]
 
 $$
 \begin{gathered}
-Q_S(u\vert q_1, q_2, q_3, \alpha)=\begin{cases}
-l_b+\theta\exp\left(\lambda\sinh\left(\sinh^{-1}(\delta S(u))+\sinh^{-1}(nc\delta)\right)\right), \quad &n \neq 0\\
-l_b+\theta\exp\left(\lambda\delta S(u)\right), \quad &n=0
+Q_S(u)=\begin{cases}
+l_b+\theta\exp\left(Q_{SUa}(u)\right),n \neq 0\\
+l_b+\theta\exp\left(\lambda\delta S(u)\right),n=0
 \end{cases}
 \end{gathered}
 $$
@@ -314,6 +331,8 @@ where
 
 $$
 \begin{gathered}
+Q_{SUa}(u) = \lambda\sinh\left[\text{asinh}(\delta S(u)) + \text{asinh}(\delta\gamma)\right]\\
+r=(u_b-l_b); \quad \gamma=nc; \quad \kappa=\frac{H-L}{2c}\\
 S(u)=\Phi^{-1}(u); \quad c=S(1-\alpha);\\
 L=\ln(q_1-l_b); \quad  B=\ln(q_2-l_b);\\
 H=\ln(q_3-l_b); \quad n=\text{sgn}(L+H-2B)\\
@@ -342,13 +361,18 @@ The generalized quantile function (QF) shares similarities with the probit-based
 The standard quantile function and distribution function of the logistic distribution are given by:
 
 $$
-S(u)= \ln\left(\frac{u}{1-u}\right);\quad S^{-1}(y)=[\exp(-y)+1]^{-1}
+\begin{gathered}
+S(u)= \ln\left(\frac{u}{1-u}\right)\\ 
+F(y)=[\exp(-y)+1]^{-1}
+\end{gathered}
 $$
 
 The standard quantile function and distribution function of the Cauchy distribution are given by:
 
 $$
-S(u)= \tan\left[\pi\left(u-\frac{1}{2}\right)\right];\quad S^{-1}(y)=\frac{1}{ \pi}\arctan(y)+\frac{1}{2}
+\begin{gathered}
+S(u)= \tan\left[\pi\left(u-\frac{1}{2}\right)\right];\\ F(y)=\frac{1}{ \pi}\arctan(y)+\frac{1}{2}
+\end{gathered}
 $$
 
 Hadlock and Bickel [@hadlock2019GeneralizedJohnsonQuantileParameterized] show that the *kernel* quantile function $S(u)$ can be any standardized ($S(0.5)=0$), symmetrical ($s(u)=s(1-u)$), and unbounded ($S(u)\in(-\infty;\infty)$) quantile function with a smooth quantile density $dS(u)/du=s(u)$. The authors further showed that if $S(u)$ and $S^{-1}(y)$ are expressible in closed-form, the quantile function and distribution function of G-QPD will also be closed-form. 
@@ -556,12 +580,15 @@ and $a=\{a_1, a_2, a_3, a_4\}$ represents the parameter vector of the SQN distri
 
 The parameter vector $a$ can be obtained by solving the matrix @eq-sqn-matrix, given the 4-element quantile-probability tuple $\{\mathbf{p}, \mathbf{q}\}_4$ [@keelin2011QuantileParameterizedDistributions; @perepolkin2021HybridElicitationIndirect].
 
-The same approach was later employed by [@keelin2016MetalogDistributions] in creating the metalog (meta-logistic) distribution. Starting with the quantile function of the logistic distribution $Q(u\vert\mu,s)=\mu+s\text{logit}(u)$, where $\mu$ corresponds to the mean and $s$ is proportional to the standard deviation $\sigma=s\pi/\sqrt3$, [@keelin2016MetalogDistributions] expanded the parameters $\mu$ and $s$ using a finite Taylor series centered at 0.5. Specifically, $\mu(u)=a_1+a_4(u-0.5)+a_5(u-0.5)^2+\dots$ and $s(u)=a_2+a_3(u-0.5)+a_6(u-0.5)^2+\dots$, where $a_i, \; i = \{1,2,\dots,n\}$ are real constants.
+The same approach was later employed by [@keelin2016MetalogDistributions] in creating the metalog (meta-logistic) distribution. Starting with the quantile function of the logistic distribution $Q(u\vert\mu,s)=\mu+s\text{logit}(u)$, where $\mu$ corresponds to the mean and $s$ is proportional to the standard deviation $\sigma=s\pi/\sqrt3$, [@keelin2016MetalogDistributions] expanded the parameters $\mu$ and $s$ using a finite Taylor series centered at 0.5. Specifically, $\mu(u)=a_1+a_4\check{u}+a_5\check{u}^2+\dots$ and $s(u)=a_2+a_3\check{u}+a_6\check{u}^2+\dots$, where $\check{u}=u-0.5$ and $a_i, \; i = \{1,2,\dots,n\}$ are real constants.
 
 Therefore, the metalog quantile function is:
 
 $$
-Q(u)= a_1+a_2\text{logit}(u)+a_3(u-0.5)\text{logit}(u)+a_4(u-0.5)+a_5(u-0.5)^2\cdots,
+\begin{gathered}
+Q(u)= a_1+a_2\text{logit}(u)+a_3\check{u}\text{logit}(u)+\\
+a_4\check{u}+a_5\check{u}^2\cdots,
+\end{gathered}
 $$
 
 Given a QPT of size $m$ denoted by $\{\mathbf{p}, \mathbf{q}\}_m$, where $\mathbf{p}$ and $\mathbf{q}$ are ordered vectors of cumulative probabilities and corresponding quantiles, respectively, the vector of coefficients $\mathbf{a}={a_1,\dots,a_m}$ can be determined by solving the matrix equation $\mathbf{q}=\mathbb{P}\mathbf{a}$, where $\mathbf{p}$, $\mathbf{q}$, and $\mathbf{a}$ are column vectors, and  $\mathbb{P}$ is an $m \times n$ matrix:
@@ -569,10 +596,10 @@ Given a QPT of size $m$ denoted by $\{\mathbf{p}, \mathbf{q}\}_m$, where $\mathb
 $$
 \begin{gathered}
 \mathbb{P} = \left[\begin{array}{lllll}
-1  &\text{logit}(p_1) &(p_1-0.5)\text{logit}(p_1) &(p_1-0.5) &\cdots\\
-1  &\text{logit}(p_2) &(p_2-0.5)\text{logit}(p_2) &(p_2-0.5) &\cdots\\
+1  &\text{logit}(p_1) &\check{p}_1\text{logit}(p_1) &\check{p}_1 &\cdots\\
+1  &\text{logit}(p_2) &\check{p}_2\text{logit}(p_2) &\check{p}_2 &\cdots\\
    &                  &\vdots\\
-1  &\text{logit}(p_m) &(p_m-0.5)\text{logit}(p_m) &(p_m-0.5) &\cdots
+1  &\text{logit}(p_m) &\check{p}_m\text{logit}(p_m) &\check{p}_m &\cdots
 \end{array}\right]
 \end{gathered}
 $$ {#eq-metalogPMatrixeq}
@@ -624,27 +651,32 @@ Kotz and van Dorp [@kotz2004BetaOtherContinuous] describe the quantile-parameter
 
 $$
 \begin{gathered}
-Q(u\vert a,m,b)=\begin{cases}
-a+\sqrt{u(m-a)(b-a)}, &\quad \text{for } 0\leq u \leq\frac{m-a}{b-a}\\
-b-\sqrt{(1-u)(b-m)(b-a)}, &\quad \text{for } \frac{m-a}{b-a}\leq u \leq 1
+Q(u)=\begin{cases}
+a+\sqrt{ud_ld}, \; \text{for } 0\leq u \leq\frac{d_l}{d}\\
+b-\sqrt{(1-u)d_ud}, \; \text{otherwise}
 \end{cases}
 \end{gathered}
 $$
 
-In [@kotz2004BetaOtherContinuous] the authors show that given the two parameterizing quantile-probability pairs ${q_a,p_a}$ and ${q_b,p_b}$ and the mode value $m$, there exists a unique value of depth $p_a<p<p_b$ corresponding to the root of the function
+where $d=b-a;\; d_l=m-a;\; d_u=b-m$.
+
+In [@kotz2004BetaOtherContinuous] the authors show that given the two parameterizing quantile-probability pairs $\{q_a,p_a\}$ and $\{q_b,p_b\}$ and the mode value $m$, there exists a unique value of depth $p_a<p<p_b$ corresponding to the root of the function
 
 $$
-g(p)=\frac{(m-q_a)(1-\sqrt{\frac{1-p_b}{1-p}})}{(q_b-m)(1-\sqrt{\frac{p_a}{p}})+(m-q_a)(1-\sqrt{\frac{1-p_b}{1-p}})}-p
+g(p)=\frac{(m-q_a)(1-\tau_b)}{(q_b-m)(1-\tau_a)+(m-q_a)(1-\tau_b)}-p
 $$
+
+where $\tau_b=\sqrt{\frac{1-p_b}{1-p}}$, $\tau_a=\sqrt{\frac{p_a}{p}}$.
 
 The root value $p\in (p_a,p_b)$ of the function $g(p)$ can be found using any of the bracketing root-finding algorithms [@perepolkin2023TenetsQuantilebasedInference]. It can then be substituted into the following expressions to find the lower $a$ and upper $b$ limit parameters of the triangular distribution:
 
 $$
 \begin{gathered}
-a(p) \equiv \frac{q_a-m\sqrt{\frac{p_a}{p}}}{1-\sqrt{\frac{p_a}{p}}}, \quad a(p)<q_a\\
-b(p) \equiv \frac{q_b-m\sqrt{\frac{1-p_b}{1-p}}}{1-\sqrt{\frac{1-p_b}{1-p}}}, \quad b(p)>q_b
+a(p) \equiv \frac{q_a-m\tau_a}{1-\tau_a}, \quad a(p)<q_a\\
+b(p) \equiv \frac{q_b-m\tau_b}{1-\tau_b}, \quad b(p)>q_b
 \end{gathered}
 $$
+where $\tau_b=\sqrt{\frac{1-p_b}{1-p}}$, and$\tau_a=\sqrt{\frac{p_a}{p}}$.
 
 The book [@kotz2004BetaOtherContinuous] provides an algorithm for fitting a four-parameter generalization of the triangular distribution called the Two-Sided Power Distribution (TSP), using three quantile-probability pairs and a mode value. For more information on fitting the Quantile-Parameterized TSP Distribution by quantiles, refer to Section 4.3.3 of [@kotz2004BetaOtherContinuous].
 
@@ -661,15 +693,17 @@ $$
 where $\tilde\mu,\tilde\sigma,\chi,\xi$ represent the location, scale, asymmetry, and steepness parameters, respectively. The specific form of the basic function $S(u)$ depends on the values of the parameters $\chi$ and $\xi$
 
 $$
-S(u\vert\chi,\xi)=
+\begin{gathered}
+S(u\vert\chi,\xi)=\\
 \begin{cases}
 \begin{aligned}
-&\ln(u)-\ln(1-u),  \quad \text{if }\chi=0,\xi=0.5&\\
-&\ln(u)-\frac{1}{2\alpha}\left[(1-u)^{2\alpha}-1\right], \quad \text{if }\chi\neq0,\xi=\frac{1}{2}(1+\chi)&\\
-&\frac{1}{2\beta}\left[u^{2\beta}-1\right]-\ln(1-u), \quad \text{if }\chi\neq0,\xi=\frac{1}{2}(1-\chi)&\\
-&\frac{1}{\alpha+\beta}\left[u^{\alpha+\beta}-1\right]-\frac{1}{\alpha-\beta}\left[(1-u)^{\alpha-\beta}-1\right], \quad \text{otherwise}
+&\ln(u)-\ln(\bar{u}),  \; \text{if }\chi=0,\xi=0.5&\\
+&\ln(u)-\frac{\bar{u}^{2\alpha}-1}{2\alpha}, \; \text{if }\chi\neq0,\xi=\frac{1}{2}(1+\chi)&\\
+&\frac{u^{2\beta}-1}{2\beta}-\ln(\bar{u}), \; \text{if }\chi\neq0,\xi=\frac{1}{2}(1-\chi)&\\
+&\frac{u^{\alpha+\beta}-1}{\alpha+\beta}-\frac{\bar{u}^{\alpha-\beta}-1}{\alpha-\beta}, \; \text{otherwise}
 \end{aligned}
 \end{cases}
+\end{gathered}
 $$
 
 where $\alpha=0.5\frac{0.5-\xi}{\sqrt{\xi(1-\xi)}}$ and $\beta=0.5\frac{\chi}{\sqrt{1-\chi^2}}$. The bounds of the distribution are given by
@@ -946,7 +980,11 @@ For invertible distributions, the inverse quantile function is the cumulative di
 Drovandi and Pettitt [@drovandi2011LikelihoodfreeBayesianEstimation] show that the joint density of a single (multivariate) observation $(y_i,\dots,y_J)$ can be expressed as:
 
 $$
-f(y_1,\dots,y_J\vert\theta)=\varphi(z(Q^{-1}(y_1\vert\theta_1)),\dots,z(Q^{-1}(y_J\vert\theta_J));\Sigma)\prod_{i=1}^{J}\frac{dQ^{-1}(y_i\vert\theta_i)}{dy_i}
+\begin{gathered}
+f(y_1,\dots,y_J\vert\theta)=\\
+\varphi\left[z(Q^{-1}(y_1\vert\theta_1)),\dots,z(Q^{-1}(y_J\vert\theta_J));\Sigma\right]\times\\
+\quad \times\prod_{i=1}^{J}\frac{dQ^{-1}(y_i\vert\theta_i)}{dy_i}
+\end{gathered}
 $$
 
 where $z(Q^{-1}(y_i\vert\theta_i))=z_i$, $\varphi(z_1,\dots,z_J;\Sigma)$ represents the multivariate normal density with a mean of zero and a covariance matrix of $\Sigma$, and $\frac{dQ^{-1}(y_i)}{dy_i}=f(y_i)$ is the probability density function (PDF) of the QPD (refer to Appendix A).
@@ -954,7 +992,12 @@ where $z(Q^{-1}(y_i\vert\theta_i))=z_i$, $\varphi(z_1,\dots,z_J;\Sigma)$ represe
 For distributions without a PDF, the same joint density can be expressed as a joint density quantile function
 
 $$
-[q(u_1,\dots,u_j)]^{-1}=\varphi(z(u_1),\dots,z(u_J);\Sigma)\prod_{i=1}^{J}[q(u_i\vert\theta_i)]^{-1}
+\begin{gathered}
+\\
+[q(u_1,\dots,u_j)]^{-1}=\\
+\varphi(z(u_1),\dots,z(u_J);\Sigma)\times\\
+\quad \times \prod_{i=1}^{J}[q(u_i\vert\theta_i)]^{-1}
+\end{gathered}
 $$
 
 since $Q^{-1}(y_i\vert\theta_i)=u_i$ and $f(y_i\vert\theta_i)=[q(u_i\vert\theta_i)]^{-1}$ [@gilchrist2000StatisticalModellingQuantile].
@@ -971,33 +1014,42 @@ The same approach of joining the marginal QPDs can be applied by using the base 
 
 $$
 \begin{aligned}
-F(y_1,y_2\vert\beta)=&F_1(y_1)F_2(y_2)[1+\beta(1-F_1(y_1))(1-F_2(y_2))]\\
-f(y_1,y_2\vert\beta)=&f_1(y_1)f_2(y_2)[1+\beta(1-2F_1(y_1))(1-2F_2(y_2))]
+&F(y_1,y_2\vert\beta)=F_1(y_1)F_2(y_2)\times\\
+&\quad \times [1+\beta(1-F_1(y_1))(1-F_2(y_2))]\\
+&f(y_1,y_2\vert\beta)=f_1(y_1)f_2(y_2)\times\\
+&\quad \times [1+\beta(1-2F_1(y_1))(1-2F_2(y_2))]
 \end{aligned}
 $$
 
 where $F_i(y_i)$ and $f_i(y_i)$ for $i\in\{1,2\}$ refer to the univariate logistic distribution and density funcitons, respectively and $-1\leq\beta\leq1$. Since $y_i=Q_i(u_i)$ we can express the bivariate density in the quantile form
 
 $$
-\begin{aligned}
-f(Q(u_1),Q(u_2)\vert\beta)=&f_1(Q(u_1))f_2(Q(u_2))[1+\beta(1-2F_1(Q_1(u_1)))(1-2F_2(Q_2(u_2)))]\\
-\left[q(u_1,u_2\vert\beta)\right]^{-1}=&[q_1(u_1)]^{-1}[q_2(u_2)]^{-1}\left[1+\beta (1-2u_1)(1-2u_2)\right]
-\end{aligned}
+\begin{gathered}
+f(Q(u_1),Q(u_2)\vert\beta)=f_1(Q(u_1))f_2(Q(u_2))\times\\
+\times [1+\beta(1-2F_1(Q_1(u_1)))(1-2F_2(Q_2(u_2)))]\\
+\left[q(u_1,u_2\vert\beta)\right]^{-1}=[q_1(u_1)]^{-1}[q_2(u_2)]^{-1} \times\\
+\times \left[1+\beta (1-2u_1)(1-2u_2)\right]
+\end{gathered}
 $$
 
 For logistic distribution $Q(u)=\ln(u)-\ln(1-u)$ and $[q(u)]^{-1}=u(1-u)$. Therefore, the bivariate logistic density quantile function can be expressed as
 
 $$
-\left[q_L(u_1,u_2\vert\beta)\right]^{-1}=u_1(1-u_1)u_2(1-u_2)\left[1+\beta (1-2u_1)(1-2u_2)\right]
+\begin{gathered}
+\left[q_L(u_1,u_2\vert\beta)\right]^{-1}=u_1(1-u_1)u_2(1-u_2)\times\\
+\quad\times \left[1+\beta (1-2u_1)(1-2u_2)\right]
+\end{gathered}
 $$
 
 If we combine the QPD marginals, the result is the joint quantile-based density for the bivariate logistic-based QPD, where the dependency is captured by the bivariate logistic distribution with the coupling parameter $\beta$, and the margins are QPDs. The joint density quantile function is given by:
 
 $$
-\begin{aligned}
-\left[q_{MQPD}(u_1,u_2\vert\theta_1,\theta_2, \beta)\right]^{-1}=&u_1(1-u_1)u_2(1-u_2)\left[1+\beta (1-2u_1)(1-2u_2)\right]\times\\
-&[q_1(u_1\vert\theta_1)]^{-1}[q_2(u_2\vert\theta_2)]^{-1}
-\end{aligned}
+\begin{gathered}
+\left[q_{MQPD}(u_1,u_2\vert\theta_1,\theta_2, \beta)\right]^{-1}=\\
+u_1(1-u_1)u_2(1-u_2)\times\\
+\times\left[1+\beta (1-2u_1)(1-2u_2)\right]\times\\
+\times [q_1(u_1\vert\theta_1)]^{-1}[q_2(u_2\vert\theta_2)]^{-1}
+\end{gathered}
 $$
 
 Here, $[q_i(u_i\vert\theta_i)]^{-1}$, for $i=1,2$, represents the marginal QPD density quantile functions, such as the density quantile function (DQF) of the Logit-Myerson distribution (see Appendix A).
@@ -1044,8 +1096,11 @@ ggplot(myerson_df,aes(x1,x2, z=d))+
 The approach we have used so far is similar to constructing the joint distribution using the Gaussian copula [@hoff2007ExtendingRankLikelihood]. Copulas provide a general approach to modeling joint distributions, separating the bivariate dependence from the effects of marginal distributions [@kurowicka2006UncertaintyAnalysisHigh]. The literature describes a wide range of copulas [@genest2007EverythingYouAlways; @smith2013BayesianApproachesCopula; @kurowicka2011DependenceModelingVine], and new copulas can be created using generator functions [@durrleman2000SimpleTransformationCopulas]. When a copula is used to connect QPDs, the joint density is calculated as follows:
 
 $$
-f_{MQPD}(y_1,y_2\vert \theta_1,\theta_2,\Xi)=c(F(y_1\vert\theta_1),F(y_2\vert\theta_2)\vert\Xi)
-f_1\left(y_1\vert\theta_1\right) f_2\left(y_2\vert\theta_2\right)
+\begin{gathered}
+f_{MQPD}(y_1,y_2\vert \theta_1,\theta_2,\Xi)=\\
+c(F(y_1\vert\theta_1),F(y_2\vert\theta_2)\vert\Xi)\times \\
+\times f_1\left(y_1\vert\theta_1\right) f_2\left(y_2\vert\theta_2\right)
+\end{gathered}
 $$
 
 where $c$ represents the copula density function with parameter $\Xi$, and $F(y_i\vert\theta_i)$ and $f_i(y_i\vert\theta_i)$ are the CDF and PDF of the marginal quantile-parameterized distributions, respectively.
@@ -1053,7 +1108,11 @@ where $c$ represents the copula density function with parameter $\Xi$, and $F(y_
 The same density can be expressed in quantile-based form [@perepolkin2023TenetsQuantilebasedInference]:
 
 $$
-[q_{MQPD}(u_1,u_2\vert\theta, \Xi)]^{-1}=c\left(u_1,u_2\vert\Xi\right)[q_1(u_1\vert\theta_1)]^{-1}[q_2(u_2\vert\theta)]^{-1}
+\begin{gathered}\\
+[q_{MQPD}(u_1,u_2\vert\theta, \Xi)]^{-1}=\\
+c\left(u_1,u_2\vert\Xi\right)\times \\
+\times [q_1(u_1\vert\theta_1)]^{-1}[q_2(u_2\vert\theta)]^{-1}
+\end{gathered}
 $$
 
 where $c$ is the copula density function with parameter $\Xi$, and $[q_i(u_i\vert\theta_i)]^{-1}$, for $i=1,2$, are the marginal DQFs of QPDs. @fig-bc-myerson presents 10,000 samples from the bivariate Myerson distribution joined by the Joe copula with $\theta=3$.
@@ -1188,255 +1247,12 @@ In conclusion, quantile-parameterized distributions offer a valuable framework f
 
 ## Acknowledgments{-}
 
-The authors have no conflict of interest to declare. U Sahlin was funded by the Crafoord Foundation (ref 20200626). We thank the editorial team and reviewers for their constructive feedback which helped us improve this manuscript.
+The authors have no conflict of interest to declare. We thank the editorial team and reviewers for their constructive feedback which helped us improve this manuscript.
 
 ## ORCID{-}
 Dmytro Perepolkin https://orcid.org/0000-0001-8558-6183   
 Erik Lindström https://orcid.org/0000-0002-6468-2624  
 Ullrika Sahlin http://orcid.org/0000-0002-2932-6253  
-
-# Appendix A. Distribution functions {.appendix .unnumbered}
-
-## Myerson Distribution {.unnumbered}
-
-The derivative of the quantile function with respect to the depth $u$ is the Quantile Density Function, which for Myerson distribution has the following form
-
-$$
-q(u\vert q_1,q_2,q_3,\alpha)=\begin{cases}
-\rho\frac{\beta^\kappa\ln(\beta)}{(\beta-1)}\frac{q_{norm}(u)}{\Phi^{-1}(1-\alpha)}, \quad &\beta \neq 1\\
-\rho\frac{q_{norm}(u)}{\Phi^{-1}(1-\alpha)}, \quad &\beta = 1
-\end{cases}
-$$
-
-where $q_{norm}=\frac{d\Phi^{-1}(u)}{du}$ is the quantile density function for the standard normal distribution.
-
-The Myerson distribution is invertible. The distribution function of random variable $X$ has the form
-
-$$
-\begin{aligned}\;
-\psi&=\Phi^{-1}(1-\alpha)\left(\frac{\ln\left(1+\frac{(x-q_2)(\beta-1)}{\rho}\right)}{\ln(\beta)}\right)&\\
-F(x\vert q_1, q_2, q_3, \alpha)&=\begin{cases}
-\Phi(\psi), \quad &\beta\neq 1\\
-F_{normal}(x\vert q_2,\rho/\Phi^{-1}(1-\alpha) ), \quad &\beta=1
-\end{cases}
-\end{aligned}
-$$
-
-where $\Phi()$ is the CDF of the standard normal distribution and $\Phi^{-1}()$ is its inverse. $F_{normal}(x\vert q_2,\rho/\Phi^{-1}(1-\alpha))$ is the CDF of the normal distribution with mean $\mu=q_2$ and standard deviation $\sigma=\rho/\Phi^{-1}(1-\alpha)$.
-
-The derivative of the distribution function with respect to the random variable $X$ is the probability density function, which for the Myerson distribution takes the following form
-
-$$
-f(x\vert q_1, q_2, q_3, \alpha)=\begin{cases}
-\frac{\Phi^{-1}(1-\alpha)(\beta-1)}{(\rho+(x-q_2)(\beta-1))\ln(\beta)}\varphi(\psi), \quad &\beta\neq1\\
-f_{normal}(x\vert q_2,\rho/\Phi^{-1}(1-\alpha)),\quad &\beta=1
-\end{cases}
-$$
-
-where $\varphi()$ is the probability density function of the standard normal distribution, $f_{normal}(x\vert q_2,\frac{\rho}{\Phi^{-1}(1-\alpha)})$ is the PDF of the normal distribution with the mean $\mu=q_2$ and standard deviation $\sigma=\rho/\Phi^{-1}(1-\alpha))$.
-
-
-## Generalized Myerson Distributions {.unnumbered}
-
-The Quantile Density Function of Generalized Myerson Distribution for $u\neq0, u\neq1$ is 
-
-$$
-q_M(u\vert q_1,q_2,q_3,\alpha)=\begin{cases}
-\rho\frac{\beta^\kappa\ln(\beta)}{(\beta-1)}\frac{s(u)}{S(1-\alpha)}, \quad &\beta \neq 1\\
-\rho\frac{s(u)}{S(1-\alpha)}, \quad &\beta = 1
-\end{cases}
-$$
-
-where $S(u)$ is the quantile function and $s(u)=\frac{dS(u)}{du}$ is the quantile density function for the kernel distribution. When $u=0$ or $u=1$ the $q_M(u)=\infty$.
-
-The Generalized Myerson distribution is invertible. The distribution function of random variable $X$ has the form
-
-$$
-\begin{aligned}\;
-\psi &=S(1-\alpha)\left(\frac{\ln\left(1+\frac{(x-q_2)(\beta-1)}{\rho}\right)}{\ln(\beta)}\right)\\
-F_M(x\vert q_1, q_2, q_3, \alpha)&=\begin{cases}
-F(\psi), \quad &\beta\neq 1\\
-q_2+ \frac{\rho}{S(1-\alpha)}F(x), \quad &\beta=1
-\end{cases}
-\end{aligned}
-$$
-
-where $F()$ is the standard CDF of the kenel distribution and $S()$ is its inverse.
-
-The derivative of the distribution function with respect to the random variable $X$ is the probability density function, which for the Myerson distribution takes the following form
-
-$$
-f_M(x\vert q_1, q_2, q_3, \alpha)=\begin{cases}
-\frac{S(1-\alpha)(\beta-1)}{(\rho+(x-q_2)(\beta-1))\ln(\beta)}f(\psi), \quad &\beta\neq1\\
-f\left(\frac{x-q_2}{\rho/S(1-\alpha)}\right),\quad &\beta=1
-\end{cases}
-$$
-
-where $f()$ is the probability density function of the standard kernel distribution. Compare it to the simplicity of the Quantile Density Function above. 
-
-## Johnson Quantile-Parameterized  Distribution {.unnumbered}
-
-The JQPD-B quantile density function can be computed as
-
-$$
-q_B(p)=\begin{cases}
-(u_b-l_b)\varphi(\xi+\lambda\sinh(\delta(z(p)+nc))) \times\\
-\quad \lambda\cosh(\sigma(z(p)+nc)) \sigma q_{norm}(p), \quad &n\neq 0\\
-(u_b-l_b)\varphi\left(B+\left(\frac{H-L}{2c}\right)z(p)\right)
-\times \left(\frac{H-L}{2c}\right)q_{norm}(p), \quad &n=0
-\end{cases}
-$$
-
-The JQPD-B distribution function
-
-$$
-F_B(x)=\begin{cases}
-\Phi\left((2c/(H-L))(-B+z\left(\frac{x-l}{u-l}\right))\right), \quad &n=0 \\
-\Phi\left(\frac{1}{\delta}\sinh^{-1}\left(\frac{1}{\lambda}\left(z\left(\frac{x-l}{u-l}\right)-\xi\right)\right)-nc\right), \quad &n\neq0
-\end{cases}
-$$
-
-The JQPD-B probability density function (PDF) is   
-
-$$
-\begin{gathered}
-f(x)=\begin{cases}
-\frac{2c}{(H-L)(u_b-l_b)}\frac{1}{\varphi\left(z\left(\frac{x-l_b}{u_b-l_b}\right)\right)}\varphi\left(\frac{2c}{H-L}\left(-B+z\left(\frac{x-l_b}{u-l_b}\right)\right)\right), \quad &n=0\\
-\frac{1}{\delta}\frac{1}{u_b-l_b}\varphi\left(-nc+\frac{1}{\delta}\sinh^{-1}\left(\frac{1}{\lambda}\left(-\xi+z\left(\frac{x-l_b}{u_b-l_b}\right)\right)\right)\right) \times \\ \indent
-\frac{1}{\varphi\left(z\left(\frac{x-l_b}{u_b-l_b}\right)\right)}\frac{1}{\sqrt{\lambda^2+\left(-\xi+z\left(\frac{x-l_b}{u_b-l_b}\right)\right)^2}}, \quad &n\neq 0\\
-\end{cases}
-\end{gathered}
-$$
-
-J-QPD-S quantile density function
-
-$$
-q_S(p)=\begin{cases}
-\theta\exp\left(\lambda\delta z(p)\right)\lambda\delta q_{norm}(p), \quad &n=0\\
-\theta\exp\left(\lambda\sinh^{-1}(\delta z(p))+\sinh^{-1}(nc\delta)\right)\lambda\frac{1}{\sqrt{1+(\delta z(p))^2}}\delta q_{norm}(p), \quad &n\neq0\\
-\end{cases}
-$$
-
-J-QPD-S distribution function
-
-$$
-F_S(x)=\begin{cases}
-F_{lnorm}(x-l_b\vert \ln(\theta), \frac{H-B}{c}), \quad &n=0\\
-\Phi\left(\frac{1}{\delta}\sinh\left(\sinh^{-1}\left(\frac{1}{\lambda}\ln\frac{x-l_b}{\theta}\right)-\sinh^{-1}(nc\delta)\right)\right), \quad &n\neq0\\
-\end{cases}
-$$
-
-J-QPD-S probability density function (PDF)
-
-$$
-f_S(x)=\begin{cases}
-\frac{1}{x\sigma\sqrt{2\pi}}\exp\left(-\frac{(\ln x-ln\xi)^2}{2\frac{(H-B)^2}{c^2}}\right), \quad &n=0\\
-\varphi\left(\frac{\sinh(\sinh^{-1}(cn\sigma)-\sinh^{-1}(\frac{1}{\lambda}\ln\frac{x-l_b}{\theta}))}{\delta}\right)\frac{\cosh(\sinh^{-1}(cn\delta)-\sinh^{-1}(\frac{1}{\lambda}\ln\frac{x-l_b}{\theta}))}{(x-l_b)\delta\lambda\sqrt{1+\left(\frac{\ln\frac{x-l_b}{\theta}}{\lambda}\right)^2}}, \quad &n \neq 0
-\end{cases}
-$$
-
-where $\mu=\ln\xi$ and $\sigma=\frac{H-B}{c}$.
-
-## Metalog distribution {.unnumbered}
-
-This section recapitulates ideas and formulas provided in [@keelin2016MetalogDistributions] with our own notation and minor reinterpretations.
-
-Metalog distribution is created from the logistic quantile function $Q(p)=\mu+s\text{logit}(p)$, where $\mu$ is the mean, $s$ is proportional to the standard deviation such that $\sigma=s\pi/\sqrt3$, $p$ is the probability $p \in [0,1]$. The metalog quantile function is built by substitution and series expansion of its parameters $\mu$ and $s$ with the polynomial of the form:
-
-$$
-\begin{aligned}\;
-&\mu=a_1+a_4(p-0.5)+a_5(p-0.5)^2+a_7(p-0.5)^3+a_9(p-0.5)^4+\dots, \\
-& s=a_2+a_3(p-0.5)+a_6(p-0.5)^2+a_8(p-0.5)^3+a_{10}(p-0.5)^4+\dots,
-\end{aligned}
-$$
-
-where $a_i, \; i \in (1\dots n)$ are real constants. Given a size-$m$ QPT $\{p, q\}_m$, where $p=\{p_1\dots p_m\}$ and $q=\{q_1\dots q_m\}$ the vector of coefficients $a=\{a_1\dots a_m\}$ can be determined through the set of linear equations.
-
-$$
-\begin{aligned}\;
-&q_1=a_1+a_2\text{logit}(p_1)+a_3(p_1-0.5)\text{logit}(p_1)+a_4(p_1-0.5)+\cdots,\\
-&q_2=a_1+a_2\text{logit}(p_2)+a_3(p_2-0.5)\text{logit}(p_2)+a_4(p_2-0.5)+\cdots,\\
-&\vdots\\
-&q_m=a_1+a_2\text{logit}(p_m)+a_3(p_m-0.5)\text{logit}(p_m)+a_4(p_m-0.5)+\cdots.\\
-\end{aligned}
-$$
-
-In the matrix form, this system of equations is equivalent to $q=\mathbb{P}a$, where $q$ and $a$ are column vectors and $\mathbb{P}$ is a $m \times n$ matrix:
-
-$$
-\mathbb{P} = \left[\begin{array}{lllll}
-1  &\text{logit}(p_1) &(p_1-0.5)\text{logit}(p_1) &(p_1-0.5) &\cdots\\
-1  &\text{logit}(p_2) &(p_2-0.5)\text{logit}(p_2) &(p_2-0.5) &\cdots\\
-   &                  &\vdots\\
-1  &\text{logit}(p_m) &(p_m-0.5)\text{logit}(p_m) &(p_m-0.5) &\cdots
-\end{array}\right]
-$$
-
-If $m=n$ and $\mathbb{P}$ is invertible, then the vector of coefficients $a$ of this *properly parameterized* metalog QPD can be uniquely determined by 
-
-$$
-a=\mathbb{P}^{-1}q
-$$ {#eq-nmetalogAsMatrixeq} 
-
-If $m > n$ and $\mathbb{P}$ has a rank of at least $n$, then the vector of coefficients $a$ of the *approximated* metalog QPD, can be estimated using 
-
-$$
-a=[\mathbb{P}^T\mathbb{P}]^{-1}\mathbb{P}^Tq
-$$
-
-The matrix to be inverted is always $n \times n$ regardless of the size $m$ of QPT used. 
-
-Metalog *quantile function* (QF) with $n$ terms $Q_{M_n}(u\vert a)$ can be expressed as
-
-$$
-Q_{M_n}(u\vert a)=\begin{cases}
-a_1+a_2\text{logit}(u), \text{ for } n=2, \\
-a_1+a_2\text{logit}(u)+a_3(u-0.5)\text{logit}(u), \text{ for } n=3, \\
-a_1+a_2\text{logit}(u)+a_3(u-0.5)\text{logit}(u)+a_4(u-0.5), \text{ for } n=4, \\
-Q_{M_{n-1}} + a_n(u-0.5)^{(n-1)/2}, \text{ for odd } n \geq 5, \\
-Q_{M_{n-1}} + a_n(u-0.5)^{n/2-1}\text{logit}(u), \text{ for even } n \geq 6, \\
-\end{cases}
-$$ {#eq-metalogQFeq}
-
-where $u \in [0,1]$ is the cumulative probability and $a$ is the size-$n$ parameter vector of real constants $a=\{a_1\dots a_n\}$.
-
-The metalog *quantile density function* (QDF) can be found by differentiating the @eq-metalogQFeq with respect to $u$:
-
-$$
-\begin{gathered}
-q_{M_n}(u\vert a)=\begin{cases}
-a_2\mathcal I(u), \text{ for } n=2, \\
-a_2\mathcal I(u)+a_3\left((u-0.5)\mathcal I(u)+\text{logit}(u) \right), \text{ for } n=3, \\
-a_2\mathcal I(u) + a_3\left((u-0.5)\mathcal I(u)+\text{logit}(u) \right)+ a_4,  \text{ for } n=4, \\
-q_{M_{n-1}} + 0.5a_n(n-1)(u-0.5)^{(n-3)/2}, \text{ for odd } n \geq 5, \\
-q_{M_{n-1}} + a_n((u-0.5)^{n/2-1}\mathcal I(u)+\\ \indent (0.5n-1)(u-0.5)^{n/2-2}\text{logit}(u)), \text{ for even } n \geq 6, \\
-\end{cases}
-\end{gathered}
-$$ {#eq-metalogQDFeq}
-
-where $\mathcal I(u)=[u(1-u)]^{-1}$. The constants $a$ are feasible iif $q_{M_{n}}(u\vert a)>0, \;\forall u \in [0,1]$.
-
-Metalog *density quantile function* (DQF), referred to as the "metalog pdf" in [@keelin2016MetalogDistributions] can be obtained by $f(Q_{M_n}(u\vert a))=[q_{M_n}(u\vert a)]^{-1}$.
-
-Metalog *cumulative distribution function* (CDF) $F_{M_n}(x\vert a)$ does not have an explicit form because $Q_{M_n}(u\vert a)$ is not invertible [@keelin2016MetalogDistributions]. It is, however, possible to approximate $\widehat Q^{-1}_{M_n}(x\vert a)$ using approximation.
-
-Metalog distribution is defined for all $x \in \mathbb R$ on the real line. [@keelin2016MetalogDistributions] provides semi-bounded *log-metalog*, and the bounded *logit-metalog* variations of the metalog distribution. As the names suggest, this is achieved through the variable substitution with $z=\ln(x-b_l)$ or $z=-\ln(b_u-x)$ for the semi-bounded case, and $z=\ln((x-b_l)/(b_u-x))$ for the bounded case, where $z$ is metalog-distributed and $b_l, b_u$ are the lower and upper limits, respectively. Substituting one of the transformations into the QF and QDF functions above, yields semi-bounded or bounded metalog distribution. For the exact formulae of the log-metalog and logit-metalog refer to [@keelin2016MetalogDistributions].
-
-
-## CSW GLD {.unnumbered}
-
-Quantile density function for the CSW GLD is provided in [@chalabi2012FlexibleDistributionModeling]
-
-$$
-\begin{gathered}
-q(u\vert\tilde\sigma,\chi,\xi)= \frac{\tilde\sigma}{S(0.75\vert\chi,\xi)-S(0.25\vert\chi,\xi)}
-s(u\vert\chi,\xi) \\
-s(u\vert\chi,\xi)=\frac{d}{du}S(u\vert\chi,\xi)=u^{\alpha+\beta-1}+(1-u)^{\alpha-\beta-1}
-\end{gathered}
-$$
-
-
-{{< pagebreak >}}
 
 # References {.unnumbered}
 
