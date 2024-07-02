@@ -1,0 +1,959 @@
+---
+title: Quantile-parameterized distributions for expert knowledge elicitation
+format:
+  informs-deca-pdf:
+    keep-tex: true
+    blind: true
+    include-in-header:
+      text: |
+        %% Uncomment a line to change font and spacing
+        %\SingleSpacedXI % 11pt and 1x line spacing
+        \SingleSpacedXII % 12pt and 1x line spacing
+        %\OneAndAHalfSpacedXI % 11pt and 1.5x line spacing
+        %\OneAndAHalfSpacedXII % 12pt and 1.5x line spacing
+        %\DoubleSpacedXI % 11pt and 2x line spacing
+        %\DoubleSpacedXII % 12pt and 2x line spacing
+author:
+  - name: Dmytro Perepolkin
+    affiliations:
+      - ref: CEC
+    orcid: 0000-0003-2402-304X
+    email: dmytro.perepolkin@cec.lu.se
+    url: https://ddrive.no
+  - name: Erik Lindström
+    affiliations:
+      - ref: MATSTAT
+    orcid: 0000-0002-6468-2624
+    email: erik.lindstrom@matstat.lu.se
+  - name: Ullrika Sahlin
+    email: ullrika.sahlin@cec.lu.se
+    affiliations:
+      - ref: CEC
+    orcid: 0000-0002-2932-6253
+affiliations:
+  - id: CEC
+    name: Lund University
+    department: Centre for Environmental and Climate Science
+    address: Sölvegatan 37
+    city: Lund
+    country: Sweden
+    postal-code: 223 62
+  - id: MATSTAT
+    name: Lund University
+    department: Centre for Mathematical Sciences
+    address: Sölvegatan 18
+    city: Lund
+    country: Sweden
+    postal-code: 223 62
+year: 2024
+#doi: "https://doi.org/10.1287/opre.2017.1714"
+#wordcount: 9740
+runauthor: "Perepolkin et al."
+runtitle: "QPDs for EKE"
+abstract: |
+  This paper provides a comprehensive overview of quantile-parameterized distributions (QPDs) as a tool for capturing expert predictions and parametric judgments. We survey a range of methods for constructing distributions that are parameterized by a set of quantile-probability pairs and describe an approach to generalizing them to enhance their tail flexibility. Furthermore, we delve into the extension of QPDs to the multivariate setting, surveying the approaches to construct bivariate distributions, which can be adopted to obtain distributions with quantile-parameterized margins. Through this review and synthesis of the previously proposed methods, we aim to enhance the understanding and utilization of QPDs in various domains.
+fundingtxt: "U Sahlin was funded by the Crafoord Foundation (ref 20200626)."
+areaofreview: "Decision Analysis"
+#subjectclass: [Fourier-Motzkin elimination, adjustable robust optimization, linear decision rules, redundant constraint identification]
+keywords: 
+  - quantile functions
+  - quantile-parameterized distributions
+  - expert knowledge elicitation
+  - statistical distributions
+bibliography: qpppp-article-1.bib  
+---
+
+```{r} 
+#| label: bibtx
+#| include: false 
+#| echo: false
+
+if (!interactive()) 
+  rbbt::bbt_write_bib('qpppp-article-1.bib', translator='bibtex', overwrite = TRUE)
+```
+
+```{r}
+#| label: setup
+#| message: false
+
+options(tidyverse.quiet = TRUE)
+library(tidyverse)
+library(posterior)
+library(bayesplot)
+library(qpd)
+library(kableExtra)
+library(ggExtra)
+library(GGally)
+library(patchwork)
+library(targets)
+library(cmdstanr)
+library(nnls)
+
+library(rvinecopulib)
+
+knitr::opts_chunk$set(dev = "cairo_pdf")
+extrafont::loadfonts(device = "pdf",quiet=TRUE)
+bayesplot::color_scheme_set("viridisE")
+bayesplot::bayesplot_theme_set(
+  hrbrthemes::theme_ipsum_rc(grid = FALSE)
+  )
+
+```
+
+
+# Introduction
+
+Judgment plays a crucial role in transforming raw data into meaningful insights. To be useful, judgment must be translated into mathematical models and assumptions. These models are designed to capture the expert's understanding of the world, including the causal links between relevant entities. The models serve as a representation of this understanding, while also addressing knowledge limitations, treated as uncertainties. Elicitation involves translating qualitative understanding into quantitative models offering valuable insights.
+
+## Past research {.unnumbered}
+
+Most of the expert elicitation protocols described in the literature  [@hanea2021ExpertJudgementRisk;@gosling2018SHELFSheffieldElicitation;@ohagan2006UncertainJudgementsEliciting; @hemming2018PracticalGuideStructured; @morgan2014UseAbuseExpert; @welsh2018MoreorlessElicitationMOLE; @spetzler1975ProbabilityEncodingDecision] encode expert judgments about the parameter or quantity of interest as an ordered set of quantiles with corresponding probabilities. This typically includes measures such as the median and the upper and lower quartiles. Assessors are then encouraged to select a probability distribution that reasonably fits the elicited quantile-probability pairs and validate the choice with the expert [@gosling2018SHELFSheffieldElicitation]. A distribution is selected from a predefined set of "simple and convenient" distributions [@ohagan2006UncertainJudgementsEliciting] with boundedness that accounts for the nature of the elicited quantity. 
+
+Several specialized distributions have been developed to facilitate smooth interpolation of probabilistic assessments. These distributions, parameterized by quantile-probability pairs, ensure that the elicited quantile-probability pairs (QPPs) are exactly preserved [@keelin2011QuantileParameterizedDistributions; @powley2013QuantileFunctionMethods;@keelin2016MetalogDistributions; @hadlock2017QuantileparameterizedMethodsQuantifying; @wilson2023ReconciliationExpertPriors]. Quantile-parameterized distributions are particularly valuable thanks to the interpretability of their parameters. By leveraging the elicited quantiles, these distributions enable precise capturing of expert knowlegde while maintaining a high level of flexibility in modeling.
+
+We believe that the primary utility of QPDs lies in their ability to simplify the specification of probability distributions for model parameters, known as *prior elicitation* [@mikkola2021PriorKnowledgeElicitation]. However, these same distributions can also be employed to describe an expert's predictions for the next observation, referred to as *predictive elicitation* [@winkler1980PriorInformationPredictive; @kadane1980PredictiveStructuralMethods; @akbarov2009ProbabilityElicitationPredictive; @hartmann2020FlexiblePriorElicitation], or to capture both uncertainty and variability through a two-dimensional probability distribution in *hybrid elicitation* [@perepolkin2021HybridElicitationIndirect]. 
+
+With this work, we aim to introduce quantile-parameterized distributions (QPDs) to a wide readership. The literature review and the findings are presented through the perspective of quantile functions, building upon the theoretical foundations established by Parzen [@parzen1979NonparametricStatisticalData] and Gilchrist [@gilchrist2000StatisticalModellingQuantile]. The derivatives and inverses for each of the quantile functions discussed in the paper are provided in the Supplementary Materials, serving as a valuable reference for future research. Through our comprehensive review and identification of research gaps, we aim to contribute to the development of flexible and extensible distributions that can effectively capture expert knowledge. We hope that our overview of quantile-parameterized distributions will be useful for researchers and practitioners, enabling them to make an informed choice of a distribution suitable for the task. 
+
+## Paper structure {.unnumbered}
+
+In Section 2, we revisit the approaches to quantile parameterization of probability distributions and explore how QPDs can effectively describe expert beliefs regarding model parameters or predictions. In Section 3, we conduct a comprehensive review and comparison of various continuous univariate QPDs found in the literature. Specifically, we focus on the Myerson distribution and its generalization accommodating different tail thicknesses. We compare the robust moments of QPDs to assess their flexibility and behavior. This comparative analysis can guide the selection of an appropriate distribution to characterize the quantity of interest. In Section 4, we explore several methods for extending univariate distributions to a multivariate setting. These methods include the utilization of standard multivariate distributions [@drovandi2011LikelihoodfreeBayesianEstimation], copulas [@hoff2007ExtendingRankLikelihood], and bivariate quantiles [@nair2023PropertiesBivariateDistributions; @vineshkumar2019BivariateQuantileFunctions]. We show how these techniques can be applied to develop a bivariate version of the Generalized Myerson distribution and demonstrate its application in parametric and predictive elicitation. Finally, in Section 5, we discuss future research directions and potential applications of QPDs in Bayesian analysis.
+
+# Quantile parameterization of probability distributions
+
+A fundamental principle in Bayesian data analysis is that learning from data involves more than formulating hypotheses and models. It necessitates articulating prior beliefs, expressing existing knowledge mathematically, and translating it into probability distributions for model parameters.
+
+To accurately translate knowledge into the language of statistical models the encoding distribution needs to be flexible, the process should be transparent, and the results must be interpretable. For continuous distributions, elicitation often consists of capturing a series of quantile-probability pairs (QPPs) [@kadane1998ExperiencesElicitation; @morgan2014UseAbuseExpert], and then fitting a distribution to these pairs [@ohagan2019ExpertKnowledgeElicitation]. However, in practice, the choice of a parametric distribution to fit the elicited QPPs is often influenced by concerns about conjugacy with the selected statistical model that represents the data-generative process (the likelihood function) and/or the availability of required distribution functions and fitting algorithms in the software employed. Frequently, the selected distribution possesses fewer parameters than the number of elicited QPPs, which can result in a less-than-perfect fit [@ohagan2019ExpertKnowledgeElicitation]. For instance, it is common to elicit three quantiles (the median along with an upper and lower quartile) and subsequently attempt to fit a normal or lognormal distribution (which features two parameters) to these points.
+
+An alternative approach to characterizing the distribution of predictions or parameters is through quantile-parameterized distributions (QPDs). These distributions are parameterized by the QPPs, allowing the elicited values to directly define the distribution, thereby ensuring a good fit and interpretability of parameters. The QPDs examined in this paper can accommodate a wide range of shapes and boundedness, making them valuable for accurately representing experts' prior beliefs.
+
+All the QPDs found in the literature are constructed using the *quantile function*. These distributions are built either by transforming simpler quantile functions or by simultaneous fitting of parameterizing quantiles, as described below.
+
+Let $Y$ be a random variable with a (cumulative) distribution function (CDF) denoted as $F_Y(y\vert\theta)$. The quantile function (QF) $Q_Y(u\vert\theta)$ for $Y$ is defined as
+
+$$
+Q_Y(u\vert\theta)=\inf\{y:F_Y(y\vert\theta)\geq u\}, \; u\in[0,1]
+$$
+
+Here, $\theta$ represents the distribution parameter, and the subscript $_Y$ indicates that the depth $u$ corresponds to the random variable $Y$.
+
+Both the CDF and the QF are considered equally valid ways of defining a distribution [@tukey1965WhichPartSample]. For a distribution function that is right-continuous and strictly increasing over the support of $Y$, the quantile function $Q_Y(u)$ is simply the inverse of the distribution function, denoted as $Q_Y(u\vert\theta)=F_Y^{-1}(u\vert\theta)$. Therefore, the quantile function is often referred to as the *inverse CDF*.
+
+The derivative of the quantile function, known as the *quantile density function* (QDF), is denoted as $q(u) = \frac{dQ(u)}{du}$. It is reciprocally related to the probability density function (PDF) $f(x)$, such that $f(Q(u))q(u) = 1$. The quantity $f_Y(Q_Y(u\vert\theta))=[q_Y(u\vert\theta)]^{-1}$ is referred to as the *density quantile* function [@parzen1979NonparametricStatisticalData] or *p-pdf* [@gilchrist2000StatisticalModellingQuantile]. The relationships between these functions are concisely illustrated in the probability function Möbius strip (@fig-moebius-chart).
+
+```{r}
+#| label: fig-moebius-chart
+#| fig-cap: "Möbius strip of probability functions [@perepolkin2023TenetsQuantilebasedInference]"
+#| fig-align: center
+#| out-width: "40%"
+rsvg::rsvg_png("img/moebius-loop(1).svg", "img/moebius-loop(1).png", width=600, height = 600)
+knitr::include_graphics("img/moebius-loop(1).png", dpi=200)
+```
+
+Although many of the distributions discussed in Section 3 have closed-form cumulative distribution functions (CDFs) and probability density functions (PDFs), the functional form of the quantile function (QF) is often simpler and can be reasoned about in terms of other quantile functions, following *Gilchrist's QF transformation rules* summarized in @tbl-qf-trans [@gilchrist2000StatisticalModellingQuantile]. 
+
+```{r}
+#| label: tbl-qf-trans
+#| tbl-cap: "Gilchrist's quantile function transformation rules [@gilchrist2000StatisticalModellingQuantile]"
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
+
+qf_tbl <- tibble::tribble(
+  ~`Original QF`,      ~`Rule`,        ~`Resulting QF`,         ~`Resulting variable`,
+"$Q_Y(u)$",      "Reflection rule",          "$-Q(1-u)$",           "QF of -Y",
+"$Q_Y(u)$",      "Reciprocal rule",         "$1/Q(1-u)$",        "QF of $1/Y$",
+"$Q_1(u), Q_2(u)$",      "Addition rule", "$Q_1(u)+Q_2(u)$",         "valid QF",
+"$Q_1(u), Q_2(u)$",  "Linear combination rule", "$aQ_1(u)+bQ_2(u)$",   "valid QF for $a,b>0$",
+"$Q_1(u),Q_2(u)>0$",  "Multiplication rule", "$Q_1(u)Q_2(u)$",   "valid QF",
+"$Q_Y(u)$", "Q-transformation", "$T(Q_Y(u))$",   "QF of $T(Y)$,\n $T(Y)$ non-decreasing",
+"$Q_Y(u)$", "p-transformation", "$Q_Y(H(u))$", "p-transformation of $Q_Y(u)$,\n $H(u)$ non-decreasing"
+)
+qf_tbl$Rule <- kableExtra::linebreak(qf_tbl$Rule)
+qf_tbl$`Resulting variable` <- kableExtra::linebreak(qf_tbl$`Resulting variable`)
+
+kableExtra::kbl(qf_tbl,escape=FALSE, format = "latex", booktabs = TRUE) %>% 
+  kableExtra::kable_styling(full_width = FALSE) %>% 
+  kableExtra::column_spec(2, width="3.5cm") %>% 
+  kableExtra::column_spec(3, width="3cm") %>% 
+  kableExtra::column_spec(4, width="4cm") 
+```
+
+The quantile-parameterized distributions in this paper are categorized into two groups based on their construction method. The first group comprises distributions that are *directly* parameterized by the quantile-probability pairs (QPPs). This group includes the Myerson distribution [@myerson2005ProbabilityModelsEconomic], and the Johnson Quantile-Parameterized Distribution [@hadlock2017JohnsonQuantileParameterizedDistributions; @hadlock2019GeneralizedJohnsonQuantileParameterized]. These distributions are constructed by reparameterizing or transforming existing distributions, following Gilchrist rules (@tbl-qf-trans). The transformations used to construct them are detailed in the next section.
+
+The other group of distributions is *indirectly* parameterized by the QPPs. They require a fitting step where the quantile-probability pairs are translated into distribution parameters, usually through optimization or least-squares methods. This group includes the Simple Q-Normal [@keelin2011QuantileParameterizedDistributions], Metalog [@keelin2016MetalogDistributions], and the quantile-parameterized Triangular (Two-Sided Power) distribution by Kotz and van Dorp [@kotz2004BetaOtherContinuous]. Each distribution's fitting method is described in the respective subsections below.
+
+# Univariate quantile-parameterized distributions
+
+This section reviews various continuous univariate QPDs appearing in the literature. We then discuss the generalized form for these distributions, based on the variations of these QPDs appearing in the literature. For each distribution, we present its quantile function and discuss the parameterization and feasibility conditions. The derivative and inverse of each distribution can be found in Appendix A.
+
+## Myerson distribution
+
+One of the earliest examples of a distribution parameterized by quantiles is the *generalized log-normal* distribution defined by the median and the upper and lower quartiles proposed by [@myerson2005ProbabilityModelsEconomic]. It relies on a transformation of the normal quantile function.
+
+The Myerson distribution can be viewed as parameterized by three quantile values $\{q_1, q_2, q_3\}$, which correspond to the cumulative probabilities $\{\alpha, 0.5, 1-\alpha\}$. These quantiles are symmetrical around the median and are defined by the tail parameter $0<\alpha<0.5$. This type of parameterization is known as the Symmetric Percentile Triplet (SPT, $\alpha$-level SPT or $\alpha$-SPT) parameterization. It is also used in several other quantile-parameterized distributions that we describe below. The Myerson quantile function is
+
+$$
+\begin{gathered}
+\rho=q_3-q_2;\; 
+\beta=\frac{\rho}{q_2-q_1};\;
+\kappa(u)=\frac{S(u)}{S(1-\alpha)}\\
+Q_Y(u \vert q_1,q_2,q_3,\alpha)=
+\begin{cases}
+q_2+\rho\frac{\beta^{\kappa(u)}-1}{\beta-1}, \quad &\beta \neq 1\\
+q_2+\rho\kappa(u), \quad &\beta =1
+\end{cases}
+\end{gathered}
+$$
+
+Here, $u$ represents the depth of the observations of the random variable $Y$ given the parameterizing $\alpha$-SPT $\{q_1, q_2, q_3, \alpha\}$, with $0 < \alpha < 0.5$. The parameter $\rho$ is the *upper p-difference*, and $\beta$ is the ratio of the inter-percentile ranges, known as the *skewness ratio* [@gilchrist2000StatisticalModellingQuantile, p.72]. The *kernel* quantile function $S(u)$ is equal to the quantile function of the standard normal distribution, also known as the *probit*, defined as $S(u) = \Phi^{-1}(u)$, where $\Phi(Y)$ denotes the CDF of the standard normal distribution. The formulas for the derivative and the inverse quantile function of the Myerson QPD can be found in the Supplementary Materials.
+
+It is important to note that while the Myerson distribution includes the normal distribution as a special case when the skewness parameter $\beta = 1$, it can exhibit right-skewness or left-skewness for other values of $\beta$. In the symmetrical case, the range of the quantile function is $(-\infty, \infty)$. For the right-skewed distribution ($\beta > 1$), the range is $(q_2 - \frac{\rho}{\beta - 1}, \infty)$, and for the left-skewed distribution ($0 < \beta < 1$), the range is $(-\infty, q_2 - \frac{\rho}{\beta - 1})$. The limiting case of the skewed Myerson distribution $\lim_{u \rightarrow 0} Q_Y(u\vert\theta)$ for $\beta > 1$ (and the other limit for $0 < \beta < 1$) possesses some important properties that we discuss in @sec-genmyerson below.
+
+The basic quantile function [@gilchrist2000StatisticalModellingQuantile; @lampasi2008AlternativeApproachMeasurement] $S(u)$ underlying the Myerson distribution is a simple *probit*, $S(u) = \Phi^{-1}(u)$, transformed using the exponentiation function $T(x) = \beta^{x}$ [@tbl-qf-trans], where $\beta > 0$ represents the skewness ratio [@gilchrist2000StatisticalModellingQuantile]. The quantile parameterization is facilitated by $\kappa(u)$, which takes values $\{-1,0,1\}$ for the three quantiles $\{q_1, q_2, q_3\}$, such that $Q(\alpha) = q_1$, $Q(0.5) = q_2$, and $Q(1 - \alpha) = q_3$.
+
+## Johnson Quantile-Parameterized Distribution
+
+Hadlock and Bickel [@hadlock2017QuantileparameterizedMethodsQuantifying] reviewed the existing quantile-parameterized distributions and proposed the quantile parameterization of the Johnson SU family of distributions [@johnson1994ContinuousUnivariateDistributions]. In their paper, Hadlock and Bickel [@hadlock2017JohnsonQuantileParameterizedDistributions] presented two versions of the distribution: the bounded (J-QPD-B) and the semi-bounded (J-QPD-S), both parameterized by an SPT $\{q_1, q_2, q_3, \alpha\}$ and the bound(s).
+
+The J-QPD-B distribution is obtained by applying the inverse-probit transformation to the Johnson SU quantile function $Q_{SU}(u) = \xi + \lambda\sinh(\delta(S(u) + \gamma))$, where $\delta$ and $\gamma$ are two shape parameters. This function is then rescaled to the compact interval $[l_b, u_b]$. The J-QPD-B quantile function is
+
+$$
+Q_B(u)=
+\begin{cases}
+l+rS^{-1}\left[Q_{SU}(u)\right], n\neq0\\
+l+rS^{-1}\left[B+\kappa S(u)\right],n=0
+\end{cases}
+$$
+
+where
+
+$$
+\begin{gathered}
+Q_{SU}(u) = \xi + \lambda\sinh(\delta(S(u) + \gamma))\\
+r=(u_b-l_b); \quad \gamma=nc; \quad \kappa=\frac{H-L}{2c}\\
+S(u)=\Phi^{-1}(u); \quad c=S(1-\alpha);\\
+L=S\left(\frac{q_1-l_b}{u_b-l_b}\right); \quad  B=S\left(\frac{q_2-l_b}{u_b-l_b}\right);\\
+H=S\left(\frac{q_3-l_b}{u_b-l_b}\right); \quad n=\text{sgn}(L+H-2B)\\
+\xi=\begin{cases}L, \quad n=1,\\
+B, \quad n=0,\\
+H, \quad n=-1,\end{cases}\\
+\delta=\frac{1}{c}\cosh^{-1}\left(\frac{H-L}{2\min(B-L,H-B)}\right)\\
+\lambda=\frac{H-L}{\sinh(2\delta c)}
+\end{gathered}
+$$
+
+```{r}
+#| label: fig-jqpd1
+#| fig-width: 9 
+#| fig.height: 4 
+#| warning: false
+#| fig-cap: "Fitted J-QPD-B (left) and J-QPD-S (right) distribution for prevalence at origin and total trade flow, respectively" 
+#| out-width: "100%"
+#| fig-align: 'center'
+
+p_prev <- tibble::tibble(
+  probs = c(1, 25, 50, 75, 99),
+  SPT=c("0.01-SPT", "0.25-SPT", "0.25-SPT", "0.25-SPT", "0.01-SPT"),
+  A0=c(1, 10, 20, 30, 50)
+) %>% mutate(across(where(is.numeric), ~.x/100))
+
+p_trade <- tibble::tibble(
+  probs = c(0.01, 0.25, 0.50, 0.75, 0.99),
+  SPT=c("0.01-SPT", "0.25-SPT", "0.25-SPT", "0.25-SPT", "0.01-SPT"),
+  A0=c(3,9,13,16, 20)
+) %>% mutate(A0=A0*1e3)
+
+bounded_df <- tibble::tibble(
+  p = make_pgrid(300),
+  `q_0.25-SPT` = qJQPDB(p, p_prev$A0[2], p_prev$A0[3], p_prev$A0[4], alpha=p_prev$probs[2], lower = 0, upper = 1),
+  `q_0.01-SPT` = qJQPDB(p, p_prev$A0[1], p_prev$A0[3], p_prev$A0[5], alpha=p_prev$probs[1], lower = 0, upper = 1),
+  `q_Beta` = qbeta(p, 1.6517, 5.9871)) %>% 
+  pivot_longer(-p, names_to= c("variable","SPT"), names_sep = "_",
+                   values_transform = as.numeric) %>% 
+  mutate(Distribution=ifelse(SPT=="Beta", "Beta", "J-QPD-B")) 
+
+semibounded_df <- tibble::tibble(
+  p = make_pgrid(300),
+  `q_0.25-SPT` = qJQPDS(p, p_trade$A0[2], p_trade$A0[3], p_trade$A0[4], alpha=p_trade$probs[2], lower = 0),
+  `q_0.01-SPT` = qJQPDS(p, p_trade$A0[1], p_trade$A0[3], p_trade$A0[5], alpha=p_trade$probs[1], lower = 0),
+  `q_Beta` = 20411*qbeta(p, 2.3853, 1.5285)) %>% 
+  pivot_longer(-p, names_to= c("variable","SPT"), names_sep = "_",
+                   values_transform = as.numeric) %>% 
+  mutate(Distribution=ifelse(SPT=="Beta", "Beta", "J-QPD-S")) 
+
+
+p1 <- ggplot(bounded_df)+
+  geom_line(aes(x=p, y=value, color= fct_rev(SPT), linetype=fct_rev(Distribution)))+
+  geom_point(data=pivot_longer(p_prev,-c(probs, SPT), 
+                               names_to = "variable",
+                               values_transform = as.numeric),
+      aes(x=probs, y=value, color=fct_rev(SPT))) +
+  scale_y_continuous(limits = c(0,0.55))+
+  hrbrthemes::theme_ipsum_rc(grid_col = "grey90")+
+  ggthemes::scale_color_colorblind()+
+  labs(color="SPT", y="Proportion of infested fruit",
+       subtitle="Prevalence at origin",
+       x="Probability", linetype="Distribution")+guides(linetype = "none")
+
+p2<- ggplot(semibounded_df)+
+  geom_line(aes(x=p, y=value, color= fct_rev(SPT), linetype=fct_rev(Distribution)))+
+  geom_point(data=pivot_longer(p_trade,-c(probs, SPT), 
+                               names_to = "variable",
+                               values_transform = as.numeric),
+      aes(x=probs, y=value, color=fct_rev(SPT))) +
+  hrbrthemes::theme_ipsum_rc(grid_col = "grey90")+
+  scale_y_continuous(label=scales::label_number())+
+  ggthemes::scale_color_colorblind()+
+  labs(color="SPT", y="tons of citrus fruit per year",
+       subtitle="Trade flow (tons of citrus fruit), tons/year",
+       x="Probability", linetype="Distribution")+guides(linetype = "none")
+wrap_plots(p1,p2, guides = "collect")
+```
+
+The left panel in @fig-jqpd1 showcases the J-QPD-B quantile function, which is parameterized using 0.25-SPT and 0.01-SPT assessments of the proportion of fruit infested with *Citripestis sagittiferella*, as elicited by @efsa2023RiskAssessmentCitripestis. The dashed line represents the Beta distribution fitted by the authors. The J-QPD-B, being parameterized by an SPT, effectively captures three of the five parameterizing quantiles, while the Beta distribution only provides an approximation. Besides, finding parameters of Beta distribution requires an optimization step.
+
+The J-QPD-S distribution is a semi-bounded variant of the distribution that employs exponentiated hyperbolic arcsine transformations of the Johnson's SU quantile function $Q_{SUa}(u) = \xi + \lambda\sinh\left[\text{asinh}(\delta S(u)) + \text{asinh}(\delta\gamma)\right]$ located at zero $\xi=0$  [@hadlock2017JohnsonQuantileParameterizedDistributions]
+
+$$
+\begin{gathered}
+Q_S(u)=\begin{cases}
+l_b+\theta\exp\left(Q_{SUa}(u)\right),n \neq 0\\
+l_b+\theta\exp\left(\lambda\delta S(u)\right),n=0
+\end{cases}
+\end{gathered}
+$$
+
+where
+
+$$
+\begin{gathered}
+Q_{SUa}(u) = \lambda\sinh\left[\text{asinh}(\delta S(u)) + \text{asinh}(\delta\gamma)\right]\\
+r=(u_b-l_b); \quad \gamma=nc; \quad \kappa=\frac{H-L}{2c}\\
+S(u)=\Phi^{-1}(u); \quad c=S(1-\alpha);\\
+L=\ln(q_1-l_b); \quad  B=\ln(q_2-l_b);\\
+H=\ln(q_3-l_b); \quad n=\text{sgn}(L+H-2B)\\
+\theta=\begin{cases}
+q_1-l_b, \quad n=1,\\
+q_2-l_b, \quad n=0,\\
+q_3-l_b, \quad n=-1,\end{cases}\\
+\delta=\frac{1}{c}\sinh\left(\cosh^{-1}\left(\frac{H-L}{2\min(B-L,H-B)}\right)\right)\\
+\lambda=\frac{1}{\delta c}\min(H-B, B-L)
+\end{gathered}
+$$
+
+When $n=\text{sgn}(L+H-2B)$ evaluates to zero, the result is a lognormal distribution with parameters  $\mu=\ln(\theta)=\ln(q_2-l_b)$ and $\sigma=\lambda\delta=(H-B)/c$. This distribution has support on the interval $[l_b,\infty]$.
+
+The right panel in @fig-jqpd1 depicts the J-QPD-S quantile function, which is parameterized using 0.25-SPT and 0.01-SPT assessments of the total trade flow for citrus fruit imported by the EU from Indonesia, Malaysia, Thailand, and Vietnam in tons/year [@efsa2023RiskAssessmentCitripestis].
+
+
+## Generalisations of QPDs
+
+### Generalized Johnson Quantile-Parameterized Distribution
+
+Hadlock and Bickel [@hadlock2019GeneralizedJohnsonQuantileParameterized] introduced the *generalized* version of the Johnson Quantile-Parameterized distribution system, denoted as G-QPD, by replacing $S(u)$ the probit at the core of the Johnson SU quantile function with the quantile functions of the logistic and Cauchy distributions. The standard quantile function and distribution function of the logistic distribution are given by $S(u)= \ln\left(\frac{u}{1-u}\right); \quad F(y)=[\exp(-y)+1]^{-1}$. The standard quantile function and distribution function of the Cauchy distribution are given by $S(u)= \tan\left[\pi\left(u-\frac{1}{2}\right)\right];\quad F(y)=\frac{1}{ \pi}\arctan(y)+\frac{1}{2}$.
+
+Hadlock and Bickel [@hadlock2019GeneralizedJohnsonQuantileParameterized] show that the *kernel* quantile function $S(u)$ can be any standardized ($S(0.5)=0$), symmetrical ($s(u)=s(1-u)$), and unbounded ($S(u)\in(-\infty;\infty)$) quantile function with a smooth quantile density $dS(u)/du=s(u)$. The authors further show that if $S(u)$ and $S^{-1}(y)$ are expressible in closed-form, the quantile function and distribution function of G-QPD will also be closed-form. 
+
+For the logistic kernel, the G-QPD-S represents the generalized log-logistic distribution, characterized by two shape parameters, $\lambda$ and $\delta$. For the Cauchy kernel, the G-QPD-S corresponds to the shifted log-Cauchy distribution [@hadlock2019GeneralizedJohnsonQuantileParameterized].
+
+
+### Generalized Myerson distributions {#sec-genmyerson}
+
+Following the approach in Hadlock and Bickel [@hadlock2019GeneralizedJohnsonQuantileParameterized], the Myerson distribution can be generalized by substituting the normal kernel quantile function $S(u)=\Phi^{-1}(u)$ with an alternative symmetrical quantile function based on the depth $u$. Below, we discuss possible kernels and the resulting distributions:
+
+**Logit-Myerson distribution**. Recently, @wilson2023ReconciliationExpertPriors reparameterized the log-logistic distribution in terms of a Symmetric Percentile Triplet. Even though the authors do not recognize it as such, the resulting quantile-parameterized distribution is a Myerson distribution with the logit kernel QF $S(u)=\ln\left(\frac{u}{1-u}\right)$).
+
+There could be several reasons why one might prefer the logit function over the probit function [@berkson1951WhyPreferLogits]. For example, distribution based on logit may exhibit greater numerical stability due to its simple closed-form quantile function, which does not rely on numerical approximation during sampling. Logit-Myerson distribution displays slightly heavier tails compared to the standard (probit-based) Myerson distribution (@fig-gmyerson-qfdqf-plot1).
+
+**Sech-Myerson distribution**. Following the same principle a variant of Myerson distribution may be created using the hyperbolic secant quantile function $S(u)=\ln\left[\tan\left(\frac{\pi}{2}u\right)\right]$.
+
+The Sech-Myerson distribution possesses even thicker tails than the Logit-Myerson distribution for the same parameterizing SPT $\{-5,4,16, 0.25\}$ (@fig-gmyerson-qfdqf-plot1). In @sec-compareqf, we conduct a comparative analysis of different variations of the Generalized Myerson distribution alongside their parametric counterparts and other quantile distributions.
+
+```{r} 
+#| label: fig-gmyerson-qfdqf-plot1
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
+#| fig-width: 9 
+#| fig.height: 4
+#| out-width: "100%"
+#| fig-align: 'center'
+#| fig-cap: "Quantile function and quantile density of Generalized Myerson Distributions"
+
+fMMyerson <- function(u, q1,q2,q3, alpha=0.25, sfun=stats::qnorm, dsfun=qpd::fnorm){
+  r <- (q3-q2)
+  bt <- r/(q2-q1)
+  qn1ma <- sfun(1-alpha)
+  k <- sfun(u)/qn1ma
+  if(bt==1){
+    res <- r*dsfun(u)/qn1ma
+  }else{
+    res <- r*(bt^k)*log(bt)*dsfun(u)/(bt-1)/qn1ma
+  }
+  res
+}
+
+qsech <- function(u){
+  log(tan(pi/2*u))
+}
+
+fsech <- function(u){
+  pi*(1+tan(0.5*pi*u)^2)/(2*tan(0.5*pi*u))
+}
+
+qs <- c(-5,4,16)
+alph <- 0.25
+
+mm_data <- tibble::tibble(
+   p_grd=qpd::make_pgrid(300),
+   `qf_(Probit)`=qpd::qMMyerson(p_grd,qs[1],qs[2],qs[3],alpha=alph, sfun=qnorm),
+   `df_(Probit)`=1/fMMyerson(p_grd,qs[1],qs[2],qs[3],alpha=alph, sfun=qnorm, dsfun=qpd::fnorm),
+   qf_Logit=qpd::qMMyerson(p_grd, qs[1], qs[2], qs[3], alpha=alph, sfun=stats::qlogis),
+   df_Logit=1/fMMyerson(p_grd, qs[1], qs[2], qs[3],alpha=alph, sfun=qlogis, dsfun=qpd::flogis),
+   qf_Sech=qpd::qMMyerson(p_grd, qs[1], qs[2], qs[3], alpha=alph, sfun=qsech),
+   df_Sech=1/fMMyerson(p_grd, qs[1], qs[2], qs[3], alpha=alph, sfun=qsech, dsfun=fsech)) %>%
+  pivot_longer(-p_grd, names_to="name", values_to = "value") %>% 
+  separate(name, into=c("type", "distribution"), sep="_") %>% 
+  mutate(distribution=paste0(distribution, "-Myerson")) %>% 
+  pivot_wider(id_cols = c(p_grd,distribution), names_from = "type", values_from = "value")
+
+p1 <- ggplot()+
+  geom_line(data=mm_data, aes(x=p_grd, y=qf, color=distribution))+
+  geom_point(aes(y=qs, x=c(alph, 0.5, 1-alph)))+
+  hrbrthemes::theme_ipsum_rc(grid_col = "grey80")+
+  coord_cartesian(ylim=c(-40,60))+
+  ggthemes::scale_color_colorblind()+
+  labs(x="u", y="Q(u)", color="Distribution")
+
+p2 <- mm_data %>% 
+  ggplot()+
+  geom_line(aes(x=qf, y=df, color=distribution))+
+  #geom_vline(xintercept=qs, color="grey80", linetype=2)+
+  hrbrthemes::theme_ipsum_rc(grid_col = "grey80")+
+  coord_cartesian(xlim=c(-40,60))+
+  ggthemes::scale_color_colorblind()+
+  labs(x="Q(u)", y="1/q(u)",color="Distribution")
+
+patchwork::wrap_plots(p1, p2, guides = "collect")
+```
+
+Theoretically, there is an infinite range of quantile function kernels that can be utilized to generate new variations of the Generalized Myerson distribution. These candidate kernel distributions can even include shape parameters, as long as the resulting $S(u)$ remains standardized, symmetrical, and unbounded, as specified above. For instance, it is possible to incorporate the basic QF of the Tukey Lambda distribution $S(u\vert\lambda)=u^\lambda-(1-u)^\lambda$ for a fixed $\lambda \neq 0$, or the Cauchy distribution $S(u)=\tan[\pi(u-0.5)]$, as employed by @hadlock2019GeneralizedJohnsonQuantileParameterized. However, not all standard quantile functions are created equal. To illustrate the issue of unreliable kernels, let us consider Myerson distributions based on the Cauchy and Tukey Lambda quantile functions (for $\lambda=-0.5$). As can be observed in @fig-gmyerson-qfdqf-plot2, the density of the Generalized Myerson distribution with these kernels exhibits unexpected spike near the lower bound.
+
+```{r}
+#| label: fig-gmyerson-qfdqf-plot2
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
+#| fig-width: 9 
+#| fig.height: 4
+#| out-width: "100%"
+#| fig-align: 'center'
+#| fig-cap: "Quantile function and quantile density of Generalized Myerson Distributions with unreliable kernels"
+
+fMMyerson <- function(u, q1,q2,q3, alpha=0.25, 
+                      sfun=stats::qnorm, dsfun=qpd::fnorm, ...){
+  r <- (q3-q2)
+  bt <- r/(q2-q1)
+  qn1ma <- sfun(1-alpha, ...)
+  k <- sfun(u, ...)/qn1ma
+  if(bt==1){
+    res <- r*dsfun(u, ...)/qn1ma
+  }else{
+    res <- r*(bt^k)*log(bt)*dsfun(u, ...)/(bt-1)/qn1ma
+  }
+  res
+}
+
+qsech <- function(u){
+  log(tan(pi/2*u))
+}
+
+fsech <- function(u){
+  pi*(1+tan(0.5*pi*u)^2)/(2*tan(0.5*pi*u))
+}
+
+
+fcauchy <- function(u){
+  pi*(1+tan(pi*(u-0.5))^2)
+}
+
+qs <- c(-5,4,16)
+alph <- 0.25
+
+mm_data <- tibble::tibble(
+  p_grd=qpd::make_pgrid(300),
+  qf_Sech=qpd::qMMyerson(p_grd, qs[1], qs[2], qs[3], alpha=alph, sfun=qsech),
+  df_Sech=1/fMMyerson(p_grd, qs[1], qs[2], qs[3],alpha=alph, sfun=qsech, dsfun=fsech),
+  qf_Cauchy=qpd::qMMyerson(p_grd, qs[1], qs[2], qs[3], alpha=alph, sfun=stats::qcauchy),
+  df_Cauchy=1/fMMyerson(p_grd, qs[1], qs[2], qs[3], alpha=alph, sfun=stats::qcauchy, dsfun=fcauchy),
+  qf_Tukey=qpd::qtukeyMyerson(p_grd, qs[1], qs[2], qs[3], alpha=alph, tlambda=-0.5),
+  df_Tukey=qpd::dqtukeyMyerson(p_grd, qs[1], qs[2], qs[3], alpha=alph, tlambda=-0.5)
+) %>% pivot_longer(-p_grd, names_to="name", values_to = "value") %>% 
+  separate(name, into=c("type", "distribution"), sep="_") %>% 
+  mutate(distribution=paste0(distribution, "-Myerson")) %>% 
+  pivot_wider(id_cols = c(p_grd,distribution), names_from = "type", values_from = "value")
+
+p1 <- ggplot()+
+  geom_line(data=mm_data, aes(x=p_grd, y=qf, color=distribution))+
+  geom_point(aes(y=qs, x=c(alph, 0.5, 1-alph)))+
+  coord_cartesian(ylim=c(-40,60))+
+  hrbrthemes::theme_ipsum_rc(grid_col = "grey80")+
+  ggthemes::scale_color_colorblind()+
+  labs(x="u", y="Q(u)", color="Distribution")
+
+
+p2 <- mm_data %>% 
+  ggplot()+
+  geom_line(aes(x=qf, y=df, color=distribution))+
+  #geom_vline(xintercept=qs, color="grey80", linetype=2)+
+  coord_cartesian(xlim=c(-40,60), ylim=c(0,0.03))+
+  hrbrthemes::theme_ipsum_rc(grid_col = "grey80")+
+  ggthemes::scale_color_colorblind()+
+  labs(x="Q(u)", y="1/q(u)",color="Distribution")
+
+patchwork::wrap_plots(p1, p2, guides = "collect")
+
+```
+
+While all right-skewed Generalized Myerson distributions are bounded on the left at $\lim_{u\rightarrow0}Q(u\vert\theta)=q_2-\rho\frac{1}{\beta-1}$ regardless of the kernel used, the quantile density at the left limit $\lim_{u\rightarrow0}[q(u\vert\theta)]^{-1}$ is not independent of the kernel. Although we can assume that $q(0)=\infty$, the lower tail of the density quantile function $[q(u)]^{-1}$ may exhibit a curling effect for certain kernels, resulting in an increase in density for lower values of $u$. This effect is caused by the non-monotonic behavior of the quantile convexity function $c(u)=dq(u)/du$. This can be easily verified by taking the second derivative of $\beta^{S(u)}$ for $\beta>0$. While such kernels are mathematically valid and yield a non-decreasing Generalized Myerson QF, we believe that they may be less useful due to the counter-intuitive concentration of density in the bounded tail. Consequently, we do not recommend using Cauchy or Tukey Lambda kernels in practical applications.
+
+
+## Simple Q-Normal, Metalog distributions
+
+An alternative system of quantile-parameterized distributions was proposed by Keelin and Powley [@keelin2011QuantileParameterizedDistributions;@powley2013QuantileFunctionMethods]. Their approach relies on the finite Taylor expansion of parameters in standardized quantile functions. Within this framework, two distributions were introduced: the Simple Q-Normal distribution and the Metalog distribution.
+
+The Simple Q-Normal (SQN) distribution was developed by expanding the parameters in the normal quantile function. Keelin et al. (2011) used this method to express the parameters of the normal quantile function $Q(u\vert\mu,\sigma)=\mu+\sigma z(u)$ as linear functions of the depth $u$. Specifically, $\mu(u)=a_1+a_4u$ and $\sigma(u)=a_2+a_3u$, where $z(u)=\Phi^{-1}(u)$ denotes the standard normal quantile function. Therefore, the quantile function of the SQN distribution can be expressed as:
+
+$$
+Q(u)= a_1+a_2z(u)+a_3uz(u)+a_4u\\
+$$
+
+where $z(u)=\Phi^{-1}(u)$, and $\mathbf{a}=\{a_1,a_2,a_3, a_4\}$ represents a vector of parameters. 
+
+Consider a quantile-probability tuple of size 4, denoted as $\{\mathbf{p}, \mathbf{q}\}_4$, which consists of an ordered vector of cumulative probabilities $\mathbf{p}=\{p_1,p_2,p_3, p_4\}$ and an ordered vector of corresponding quantiles $\mathbf{q}=\{q_1,q_2,q_3, q_4\}$. Substituting these vectors into the SQN quantile function for $u$ and $Q(u)$, respectively, we obtain the matrix equation $\mathbf{q}=\mathbb P\mathbf{a}$, where $\mathbf{a}=\{a_1, a_2, a_3, a_4\}$ represents the parameter vector of the SQN distribution and
+
+$$
+\begin{gathered}
+\mathbb P=\begin{bmatrix} 1 & z(p_1) & p_1z(p_1) & p_1\\
+                1 & z(p_2) & p_2z(p_2) & p_2\\
+                1 & z(p_3) & p_3z(p_3) & p_3\\
+                1 & z(p_4) & p_4z(p_4) & p_4\end{bmatrix}.
+\end{gathered}
+$$
+
+The parameter vector $a$ can be obtained by solving the matrix equation above, given the 4-element quantile-probability tuple $\{\mathbf{p}, \mathbf{q}\}_4$ [@keelin2011QuantileParameterizedDistributions; @perepolkin2021HybridElicitationIndirect].
+
+The same approach was later employed by @keelin2016MetalogDistributions in creating the metalog (meta-logistic) distribution. Starting with the quantile function of the logistic distribution $Q(u\vert\mu,s)=\mu+s\text{logit}(u)$, where $\mu$ corresponds to the mean and $s$ is proportional to the standard deviation $\sigma=s\pi/\sqrt3$, @keelin2016MetalogDistributions expanded the parameters $\mu$ and $s$ using a finite Taylor series centered at 0.5. Specifically, $\mu(u)=a_1+a_4\check{u}+a_5\check{u}^2+\dots$ and $s(u)=a_2+a_3\check{u}+a_6\check{u}^2+\dots$, where $\check{u}=u-0.5$ and $a_i, \; i = \{1,2,\dots,n\}$ are real constants.
+
+Therefore, the metalog quantile function is:
+
+$$
+\begin{gathered}
+Q(u)= a_1+a_2\text{logit}(u)+\\
+a_3\check{u}\text{logit}(u)+a_4\check{u}+a_5\check{u}^2\cdots,
+\end{gathered}
+$$
+
+where $\check{u}$ is the centered depth $\check{u}=u-0.5$.
+
+Given a QPT of size $m$ denoted by $\{\mathbf{p}, \mathbf{q}\}_m$, where $\mathbf{p}$ and $\mathbf{q}$ are ordered vectors of cumulative probabilities and corresponding quantiles, respectively, the vector of coefficients $\mathbf{a}={a_1,\dots,a_m}$ can be determined by solving the matrix equation $\mathbf{q}=\mathbb{P}\mathbf{a}$, where $\mathbf{p}$, $\mathbf{q}$, and $\mathbf{a}$ are column vectors, and  $\mathbb{P}$ is an $m \times n$ matrix:
+
+$$
+\begin{gathered}
+\mathbb{P} = \left[\begin{array}{lllll}
+1  &\text{logit}(p_1) &\check{p}_1\text{logit}(p_1) &\check{p}_1 &\cdots\\
+1  &\text{logit}(p_2) &\check{p}_2\text{logit}(p_2) &\check{p}_2 &\cdots\\
+   &                  &\vdots\\
+1  &\text{logit}(p_m) &\check{p}_m\text{logit}(p_m) &\check{p}_m &\cdots
+\end{array}\right].
+\end{gathered}
+$$
+
+The vector of coefficients $\mathbf{a}$ can be determined as $\mathbf{a}=[\mathbb{P}^{T}\mathbb{P}]^{-1}\mathbb{P}^{T}\mathbf{q}$. If $\mathbb{P}$ is a square matrix, meaning the number of terms $n$ is equal to the size of the parameterizing QPT $m$, the equation can be further simplified to $\mathbf{a}=\mathbb{P}^{-1}\mathbf{q}$. Metalog is said to be *approximated* when the number of quantile-probability pairs used for parameterization exceeds the number of terms in the metalog QF [@keelin2016MetalogDistributions; @perepolkin2021HybridElicitationIndirect].
+
+The SQN and Metalog distributions are families of extended distributions that, in theory, can have an arbitrary number of terms. Keelin [@keelin2016MetalogDistributions] demonstrated the flexibility of the metalog distribution and its ability to approximate arbitrarily complex probability density functions with high precision, given enough terms in the metalog specification. In practice, 10-15 terms are sufficient to approximate the distributional shapes of virtually any complexity [@keelin2021MetalogDistributionsVirtually]. @keelin2016MetalogDistributions introduced the bounded logit-metalog, the semi-bounded log-metalog, and a special case of a 3-term metalog parameterized by $\alpha$-SPT (SPT-metalog).
+
+However, not all combinations of parameters $\mathbf{a}$ in metalog and SQN distributions result in a feasible (non-decreasing) quantile function. For an arbitrary $\mathbf{a}$-vector, feasibility must be checked [@keelin2011QuantileParameterizedDistributions]. In the case of 3-term metalogs, the feasibility conditions are straightforward [@keelin2016MetalogDistributions]. However, as the number of terms increases, these conditions become increasingly complex [@keelin2017MetalogDistributionsFeasibility]. Dealing with such feasibility requirements stands in contrast with QF’s that are constructed using Gilchrist rules (@tbl-qf-trans), which guarantee feasibility.
+
+## Triangular and Two-Sided Power distributions
+
+Kotz and van Dorp [@kotz2004BetaOtherContinuous] describe the quantile-parameterized version of the triangular distribution [@johnson1997TriangularDistributionProxy]. This bounded distribution is widely used in the finance and insurance industry and is popularized by the \@Risk software package, developed by Palisade [@palisadecorporation2009GuideUsingRISK]. The triangular distribution is parameterized by the two quantiles $q_{a}$ and $q_{b}$, and the mode $m$, subject to the constraint that $a\leq q_a\leq m\leq q_b\leq b$, where $a$ and $b$ represent the lower and upper bounds, respectively. The standard quantile function for the triangular distribution is expressed in terms of the bounds $a$, $b$, and the mode $m$.
+
+$$
+\begin{gathered}
+Q(u)=\begin{cases}
+a+\sqrt{ud_ld}, \; \text{for } 0\leq u \leq\frac{d_l}{d}\\
+b-\sqrt{(1-u)d_ud}, \; \text{otherwise}
+\end{cases}
+\end{gathered}
+$$
+
+where $d=b-a;\; d_l=m-a;\; d_u=b-m$.
+
+@kotz2004BetaOtherContinuous show that given the two parameterizing quantile-probability pairs $\{q_a,p_a\}$ and $\{q_b,p_b\}$ and the mode value $m$, there exists a unique value of depth $p_a<p<p_b$ corresponding to the root of the function
+
+$$
+g(p)=\frac{(m-q_a)(1-\tau_b)}{(q_b-m)(1-\tau_a)+(m-q_a)(1-\tau_b)}-p
+$$
+
+where $\tau_b=\sqrt{\frac{1-p_b}{1-p}}$, $\tau_a=\sqrt{\frac{p_a}{p}}$.
+
+The root value $p\in (p_a,p_b)$ of the function $g(p)$ can be found using any of the bracketing root-finding algorithms [@perepolkin2023TenetsQuantilebasedInference]. It can then be substituted into the following expressions to find the lower $a$ and upper $b$ limit parameters of the triangular distribution:
+
+$$
+\begin{gathered}
+a(p) \equiv \frac{q_a-m\tau_a}{1-\tau_a}, \quad a(p)<q_a\\
+b(p) \equiv \frac{q_b-m\tau_b}{1-\tau_b}, \quad b(p)>q_b
+\end{gathered}
+$$
+where $\tau_b=\sqrt{\frac{1-p_b}{1-p}}$, and$\tau_a=\sqrt{\frac{p_a}{p}}$.
+
+The book [@kotz2004BetaOtherContinuous] provides an algorithm for fitting a four-parameter generalization of the triangular distribution called the Two-Sided Power Distribution (TSP), using three quantile-probability pairs and a mode value. For more information on fitting the Quantile-Parameterized TSP Distribution by quantiles, refer to Section 4.3.3 in @kotz2004BetaOtherContinuous.
+
+## Choosing quantile-parameterized distribution {#sec-compareqf}
+
+A common approach to assess the properties of probability distributions is through central moments, denoted by $\mu_k=\mathbb{E}[(Y-\mu)^k]$, where $\mu$ represents the expected value of $Y$. Karl Pearson introduced a classification system for distributions using moment ratios associated with skewness and kurtosis [@fiori2009KarlPearsonOrigin]:
+
+$$
+\beta_1=\frac{\mu_3^2}{\mu_2^3},\quad \beta_2=\frac{\mu_4}{\mu_2^2}
+$$
+
+While computing moments using the quantile function is straightforward (the $n$-th raw moment is $\mu_k=\int_0^1 Q(u)^k du$), it may not be possible to calculate higher-order moments for certain distributions.
+
+Instead, robust alternatives to moments can be utilized, such as the sample median $\mu_r$, the interquartile range $\sigma_r$, the quartile-based robust coefficient of skewness $s_r$ [@kim2004MoreRobustEstimation], also known as Bowley's skewness [@bowley1920ElementsStatistics] or Galton's skewness [@gilchrist2000StatisticalModellingQuantile], and the octile-based robust coefficient of kurtosis $\kappa_r$, also known as Moors' kurtosis [@moors1988QuantileAlternativeKurtosis].
+
+$$
+\begin{aligned}
+&\mu_r=Q(1/2)\\
+&\sigma_r=Q(3/4)-Q(1/4)\\
+&s_r=\frac{Q(3/4)+Q(1/4)-2Q(1/2)}{\sigma_r}\\
+&\kappa_r=\frac{Q(7/8)-Q(5/8)+Q(3/8)-Q(1/8)}{\sigma_r}
+\end{aligned}
+$$
+
+@kim2004MoreRobustEstimation and @arachchige2022RobustAnalogsCoefficient have proposed to standardize robust moments to facilitate their comparison with the corresponding robust moments of the standard normal distribution. @groeneveld1998ClassQuantileMeasures and @jones2011SkewnessInvariantMeasuresKurtosis have introduced generalizations of robust moments to other quantiles.
+
+Unlike moments, quantiles are always well defined, and since QPDs are parameterized by quantile-probability pairs, quantile-based robust moments can sometimes be directly computed from the parameters. For instance, if the basic quantile function $S(u)$ in $Q(u)=\mu+\sigma S(u)$ is standardized (such that $S(0.5)=0$), where $\mu$ and $\sigma$ are the location and scale parameters of $Q(u)$ respectively, then $\mu_r=\mu$. Moreover, $\sigma_r$ is always independent of location, and $s_r$ and $\kappa_r$ are independent of both location and scale.
+
+@fig-unbounded, @fig-semibounded, and @fig-bounded resemble the Cullen and Frey [@cullen1999ProbabilisticTechniquesExposure] plots (also known as the Pearson plots), but instead of using central moments they employ quartile/octile-based robust metrics of skewness $s_r$ and kurtosis $\kappa_r$ to compare the quantile-parameterized distributions to some of their parametric counterparts. 
+
+In these plots, Metalog3 and Metalog4 refer to 3- and 4-term metalog distributions, respectively, and GLDcsw refers to Chalabi et al [@chalabi2012FlexibleDistributionModeling] parameterization of the Generalized Lambda Distribution (GLD). As can be seen in @fig-unbounded, all generalizations of Myerson distributions have higher robust kurtosis for the same robust skewness. Additionally, GLD CSW is more flexible than the unbounded 4-term metalog. The *log*-transformed metalog distribution appears to be the best among the semi-bounded distributions (@fig-semibounded). Furthermore, the flexibility of the bounded J-QPD-B is at least as good as that of the Beta and Kumaraswamy distributions (@fig-bounded).  
+
+```{r}
+#| label: fig-unbounded
+#| fig-cap: "Robust skewness vs robust kurtosis for some unbounded distributions"
+#| fig-align: 'center'
+#| out-width: "80%"
+
+knitr::include_graphics("img/unbounded_final.png", dpi=200)
+```
+
+```{r}
+#| label: fig-semibounded
+#| fig-cap: "Robust skewness vs robust kurtosis for some left-bounded distributions"
+#| fig-align: 'center'
+#| out-width: "80%"
+
+knitr::include_graphics("img/semibounded_final.png", dpi=200)
+```
+
+```{r}
+#| label: fig-bounded
+#| fig-cap: "Robust skewness vs robust kurtosis for some bounded distributions"
+#| fig-align: 'center'
+#| out-width: "80%"
+
+knitr::include_graphics("img/bounded_final.png", dpi=200)
+```
+
+# Multivariate quantile-parameterized distributions {#sec-multivariateqpd}
+
+Quantile-parameterized distributions can serve as marginal distributions in multivariate models, where the dependency structure is captured by a standard (parametric) multivariate distribution, a copula, or described by bivariate quantiles. The marginal distributions alone are insufficient to determine the corresponding bivariate distribution, resulting in an infinite number of bivariate distributions with the same margins [@gumbel1960BivariateExponentialDistributions; @gumbel1961BivariateLogisticDistributions]. In this section, we describe several methods for extending the distributions parameterized by the quantile-probability pairs to become Multivariate Quantile-Parameterized Distributions (MQPDs).
+
+## MQPDs based on standard multivariate distributions
+
+### Normal distribution
+
+In the simplest case, multivariate Quantile-Parameterized Distributions (MQPDs) can be created using the multivariate normal distribution, following the approach of @hoff2007ExtendingRankLikelihood. The Myerson, J-QPD, and SQN quantile functions are Q-transformations of the probit $Q(z(u)\vert\theta)$, where $z(u)=\Phi^{-1}(u)$ represents the standard normal quantile function. The multivariate versions of these distributions can be viewed as the Q-transformations of the multivariate normal distribution. To extend these QPDs to $J$ dimensions using the multivariate normal distribution, we employ the method outlined in @drovandi2011LikelihoodfreeBayesianEstimation.
+
+The $i$-th component of a single observation $y_i$ can be described by the quantile function $y_i=Q(z(u_i)\vert\theta_i)$, for $i=1,\dots,J$, where $\theta_i$ represents the set of parameters for component $i$ (e.g., $\{q_1,q_2,q_3, \alpha\}_i)$ for Myerson or J-QPD distributions). The vector $(z(u_1),\dots,z(u_j))^T\sim N(0,\Sigma)$, where $\Sigma$ denotes the covariance matrix. For invertible distributions, the inverse quantile function is the cumulative distribution function (CDF) $Q^{-1}(y_i\vert\theta)=F(y_i\vert\theta)$, otherwise, the inverse can be computed numerically as $\widehat{F}(y_i\vert\theta)=\widehat{Q^{-1}}(y_i\vert\theta)$ [@perepolkin2023TenetsQuantilebasedInference].
+
+Drovandi and Pettitt [@drovandi2011LikelihoodfreeBayesianEstimation] show that the joint density of a single (multivariate) observation $(y_i,\dots,y_J)$ can be expressed as:
+
+$$
+\begin{gathered}
+f(y_1,\dots,y_J\vert\theta)=\\
+\varphi\left[z(Q^{-1}(y_1\vert\theta_1)),\dots,z(Q^{-1}(y_J\vert\theta_J));\Sigma\right]\times\\
+\quad \times\prod_{i=1}^{J}\frac{dQ^{-1}(y_i\vert\theta_i)}{dy_i}
+\end{gathered}
+$$
+
+where $z(Q^{-1}(y_i\vert\theta_i))=z_i$, $\varphi(z_1,\dots,z_J;\Sigma)$ represents the multivariate normal density with a mean of zero and a covariance matrix of $\Sigma$, and $\frac{dQ^{-1}(y_i)}{dy_i}=f(y_i)$ is the probability density function (PDF) of the QPD (refer to Supplementary Materials).
+
+For distributions without a PDF, the same joint density can be expressed as a joint *density quantile function*:
+
+$$
+\begin{gathered}
+\\
+[q(u_1,\dots,u_j)]^{-1}=\\
+\varphi(z(u_1),\dots,z(u_J);\Sigma)\times\\
+\quad \times \prod_{i=1}^{J}[q(u_i\vert\theta_i)]^{-1}
+\end{gathered}
+$$
+
+since $Q^{-1}(y_i\vert\theta_i)=u_i$ and $f(y_i\vert\theta_i)=[q(u_i\vert\theta_i)]^{-1}$ [@gilchrist2000StatisticalModellingQuantile].
+
+It's worth noting that this method of creating multivariate distributions does not require every component to follow the same distributional form. As illustrated earlier, it is entirely possible to combine several different QPDs using the multivariate Gaussian distribution [@drovandi2011LikelihoodfreeBayesianEstimation].
+
+To use the MQPD for the prior, both the density of the multivariate normal and the marginal densities need to be explicitly added to the log-likelihood. This is possible when the marginal QPDs used to define the multivariate prior are invertible, such as Myerson and J-QPD, as both the CDF ($Q^{-1}(y_i\vert\theta_i)$) and PDF ($dQ^{-1}(y_i\vert\theta_i)/dy_i$) are required. When a quantile-based prior specification is used, only the multivariate normal log-density needs to be added because the Jacobian for the marginal QF transformation is reciprocal to the DQF of the prior [@perepolkin2023TenetsQuantilebasedInference].
+
+### Logistic distribution
+
+The same approach of joining the marginal QPDs can be applied by using the base quantile functions of other distributions. For instance, the Logit-Myerson distribution [@wilson2023ReconciliationExpertPriors] is based on the logistic quantile function. Two Logit-Myerson distributions can be connected using the bivariate logistic distribution. @gumbel1961BivariateLogisticDistributions proposed three different formulations for the bivariate logistic distribution. The Type II distribution from the Morgenstern family [@sajeevkumar2014EstimationParameterMorgenstern; @basikhasteh2021BayesianEstimationMorgenstern] has the following joint distribution and  density functions:
+
+$$
+\begin{aligned}
+&F(y_1,y_2\vert\beta)=F_1(y_1)F_2(y_2)\times\\
+&\quad \times [1+\beta(1-F_1(y_1))(1-F_2(y_2))]\\
+&f(y_1,y_2\vert\beta)=f_1(y_1)f_2(y_2)\times\\
+&\quad \times [1+\beta(1-2F_1(y_1))(1-2F_2(y_2))]
+\end{aligned}
+$$
+
+where $F_i(y_i)$ and $f_i(y_i)$ for $i\in\{1,2\}$ refer to the univariate logistic distribution and density funcitons, respectively and $-1\leq\beta\leq1$. Since $y_i=Q_i(u_i)$ we can express the bivariate density in the quantile form
+
+$$
+\begin{gathered}
+f(Q(u_1),Q(u_2)\vert\beta)=f_1(Q(u_1))f_2(Q(u_2))\times\\
+\times [1+\beta(1-2F_1(Q_1(u_1)))(1-2F_2(Q_2(u_2)))]\\
+\left[q(u_1,u_2\vert\beta)\right]^{-1}=[q_1(u_1)]^{-1}[q_2(u_2)]^{-1} \times\\
+\times \left[1+\beta (1-2u_1)(1-2u_2)\right]
+\end{gathered}
+$$
+
+For logistic distribution with $Q(u)=\ln(u)-\ln(1-u)$ and $[q(u)]^{-1}=u(1-u)$, the bivariate logistic density quantile function can be expressed as
+
+$$
+\begin{gathered}
+\left[q_L(u_1,u_2\vert\beta)\right]^{-1}=u_1(1-u_1)u_2(1-u_2)\times\\
+\quad\times \left[1+\beta (1-2u_1)(1-2u_2)\right]
+\end{gathered}
+$$
+
+If we combine the QPD marginals, the result is the joint quantile-based density for the bivariate logistic-based QPD, where the dependency is captured by the bivariate logistic distribution with the coupling parameter $\beta$, and the margins are QPDs. The joint density quantile function is given by:
+
+$$
+\begin{gathered}
+\left[q_{MQPD}(u_1,u_2\vert\theta_1,\theta_2, \beta)\right]^{-1}=\\
+u_1(1-u_1)u_2(1-u_2)\times\\
+\times\left[1+\beta (1-2u_1)(1-2u_2)\right]\times\\
+\times [q_1(u_1\vert\theta_1)]^{-1}[q_2(u_2\vert\theta_2)]^{-1}
+\end{gathered}
+$$
+
+where $[q_i(u_i\vert\theta_i)]^{-1}$, for $i=1,2$, are the marginal QPD density quantile functions, such as the density quantile function (DQF) of the Logit-Myerson distribution (see Supplementary Materials).
+
+```{r}
+#| label: fig-bi-logitmyerson
+#| echo: false
+#| out-width: "80%"
+#| fig-cap: "Density of Generalized Myerson distributions joined by Type II bivariate logistic distribution"
+#| fig-align: 'center'
+#| warning: false
+
+set.seed(42)
+N <- 1e3
+# variances on diagonal and covariances off diagonal
+bt <- -0.6
+myerson_df <- expand.grid(
+  u1 = ppoints(N),
+  u2 = ppoints(N)) %>% 
+  mutate(
+  lx1 = qlogis(u1),
+  lx2 = qlogis(u2),
+  x1 = qlogitMyerson(u1, 3, 7, 10, alpha = 0.1),
+  dx1 = dlogitMyerson(u1, 3, 7, 10, alpha = 0.1),
+  x2 = qlogitMyerson(u2, -9, -3, 2, alpha = 0.25),
+  dx2 = dlogitMyerson(u2, -9, -3, 2, alpha = 0.25), 
+  d = dlogis(lx1)*dlogis(lx2)*(1+bt*(1-2*plogis(lx1))*(1-2*plogis(lx2)))*dx1*dx2
+ )
+
+ggplot(myerson_df,aes(x1,x2, z=d))+
+  geom_contour()+
+  geom_vline(xintercept = c(3,7,10), color="grey50", linetype=2)+
+  geom_hline(yintercept = c(-9, -3, 2), color="grey50", linetype=2)+
+  hrbrthemes::theme_ipsum_rc(grid_col="grey90")+
+  labs(x="x ~ Myerson(3,7,10; 0.25)",
+       y="y ~ Myerson(-9, -3, 2; 0.10)")
+
+```
+
+@fig-bi-logitmyerson presents the Bivariate Logit-Myerson Distribution, parameterized by $\Theta=\{\theta_1, \theta_2, \rho\}$, where the marginal Myerson distributions are given by $y_{ij}=Q_j(z(u_{ij}),\theta_j)$ for $j=1,2$, with parameter vectors $\theta_1=\{3,7,10;0.25\}$, $\theta_2=\{1,10,20;0.1\}$, and the dependence parameter $\beta=0.6$. 
+
+## Copula-based MQPDs
+
+The approach we have used so far is similar to constructing the joint distribution using the Gaussian copula [@hoff2007ExtendingRankLikelihood]. Copulas provide a general approach to modeling joint distributions, separating the bivariate dependence from the effects of marginal distributions [@kurowicka2006UncertaintyAnalysisHigh]. The literature describes a wide range of copulas [@genest2007EverythingYouAlways; @smith2013BayesianApproachesCopula; @kurowicka2011DependenceModelingVine], and new copulas can be created using generator functions [@durrleman2000SimpleTransformationCopulas]. When a copula is used to connect QPDs, the joint density is calculated as follows:
+
+$$
+\begin{gathered}
+f_{MQPD}(y_1,y_2\vert \theta_1,\theta_2,\Xi)=\\
+c(F(y_1\vert\theta_1),F(y_2\vert\theta_2)\vert\Xi)\times \\
+\times f_1\left(y_1\vert\theta_1\right) f_2\left(y_2\vert\theta_2\right)
+\end{gathered}
+$$
+
+where $c$ represents the copula density function with parameter $\Xi$, and $F(y_i\vert\theta_i)$ and $f_i(y_i\vert\theta_i)$ are the CDF and PDF of the marginal quantile-parameterized distributions, respectively.
+
+The same density can be expressed in a quantile-based form [@perepolkin2023TenetsQuantilebasedInference]:
+
+$$
+\begin{gathered}\\
+[q_{MQPD}(u_1,u_2\vert\theta, \Xi)]^{-1}=\\
+c\left(u_1,u_2\vert\Xi\right)\times \\
+\times [q_1(u_1\vert\theta_1)]^{-1}[q_2(u_2\vert\theta)]^{-1}
+\end{gathered}
+$$
+
+where $c$ is the copula density function with parameter $\Xi$, and $[q_i(u_i\vert\theta_i)]^{-1}$, for $i=1,2$, are the marginal DQFs of QPDs. @fig-bc-myerson presents 10,000 samples from the bivariate Myerson distribution joined by the Joe copula with $\theta=3$.
+
+Elicitation of multivariate distributions may require a specialized approach [@elfadaly2017ElicitingDirichletGaussian; @wilson2021RecentAdvancesElicitation]. For examples of expert-specified multivariate distributions encoded with copulas, we refer to the relevant literature [@wilson2018SpecificationInformativePrior; @holzhauer2022ElicitingJudgementsDependent; @sharma2018RegularizationVariableSelection; @aas2009PaircopulaConstructionsMultiple]. When fitting copulas to empirical observations, the *blanket* goodness of fit measure [@wang2000ModelSelectionSemiparametric] based on Kendall's transform [@genest2006GoodnessofFitProceduresCopula; @genest2009GoodnessoffitTestsCopulas] can be used.
+
+```{r}
+#| label: fig-bc-myerson
+#| echo: false
+#| out-width: "80%"
+#| warning: false
+#| error: false
+#| message: false
+#| fig-cap: "Samples from the bivariate Myerson distribution joined by the Joe copula ($\\theta=3$)"
+#| fig-align: 'center'
+
+
+library(rvinecopulib)
+set.seed(42)
+N <- 1e4
+smpls_u <- rvinecopulib::rbicop(N, family="joe", parameters=c(3))
+
+myerson_df <- tibble(
+x1 = qMyerson(smpls_u[,1], 3, 7, 10, alpha = 0.25),
+x2 = qMyerson(smpls_u[,2], -9, -3, 2, alpha=0.1)
+)
+
+myerson_kde <- MASS::kde2d(myerson_df$x1, myerson_df$x2, n = 100) 
+
+p1 <- ggplot(myerson_df,aes(x1,x2))+
+  geom_point(alpha=0.1)+
+  geom_density2d()+
+  geom_vline(xintercept = c(3,7,10), color="grey30", linetype=2)+
+  geom_hline(yintercept = c(-9, -3, 2), color="grey30", linetype=2)+
+  hrbrthemes::theme_ipsum_rc(grid_col="grey90")+
+  labs(x="x ~ Myerson(3,7,10; 0.25)",
+       y="y ~ Myerson(-9, -3, 2; 0.10)")
+
+ggMarginal(p1, type="densigram", color="royalblue", fill="grey30")
+
+```
+
+## Bivariate quantiles
+
+The formal definition of bivariate quantile functions and the method for constructing bivariate quantile distributions using marginal and conditional quantile functions are provided by @nair2023PropertiesBivariateDistributions and @vineshkumar2019BivariateQuantileFunctions. They define the bivarate quantile function (bQF) of $(X_1, X_2)$ as the pair 
+$Q(u_1, u_2)=(Q_1(u_1), Q_{21}(u_2\vert u_1))$, where $Q_1(u_1)=\inf \{x_1: F_1(x_1)\geq u_1\}$,  $u_1\in[0,1]$ and $Q_{21}(u_2\vert u_1)=\inf\{x_2: F_{21}(Q_1, x_2)\geq u_2\}$.
+
+The conditional quantile function $Q_{21}(u_2\vert u_1)$ can be obtained by inverting the conditional distribution function $F_{21}(x_1, x_2)$, which is computed from the factorization of the joint survival function. The joint survival function is defined as $\bar{F}(x_1, x_2)=P(X_1> x_1)P(X_2> x_2 \vert X_1 > x_1)= \bar{F}(x_1)\bar{F}_{21}(x_1,x_2)$. Note that the joint survival function $\bar{F}(x_1,x_2)=1-F_1(x_1)-F_2(x_2)+F(x_1,x_2)$, and the conditional survival function $\bar{F}_{21}(x_1,x_2)=1-F_{21}(x_1,x_2)$.
+
+Another approach for creating bivariate quantile functions is through Gilchrist's QF transformation rules [@gilchrist2000StatisticalModellingQuantile], which can be generalized to bivariate quantile functions. According to @nair2023PropertiesBivariateDistributions (Property 6), the conditional QF can be constructed as a sum of two univariate QFs: $Q_{21}(u_2\vert u_1) = Q_1(u_1) + Q_2(u_2)$. This means that the pair $(Q_1(u_1), ; Q_1(u_1) + Q_2(u_2))$ is a valid bivariate quantile function, which generalizes Gilchrist's *addition rule* (@tbl-qf-trans). The addition rule also works for quantile density functions (Property 7). If $Q_1$ is left-bounded at zero, i.e., $Q_1(0) = 0$, then the margins of such a bQF are $X_1 = Q_1(u_1)$ and $X_2 = Q_2(u_2)$. Otherwise, the marginal distribution of $X_2$ will be $\lim_{u_1 \rightarrow 0}Q_{21}(u_2\vert u_1)$, which in many cases is not tractable.
+
+If $Q_1(u_1)$ and $Q_2(u_2)$ are positive on $u_i \in [0,1]$, then their product is also a valid conditional QF (Property 8), generalizing Gilchrist's "product rule". Finally, Property 9 generalizes the "Q-transformation rule," stating that for every increasing transformation functions $T_1$ and $T_2$, $\left(T_1(Q_1(u_1)), T_1(Q_1(u_1)) + T_2(Q_2(u_2))\right)$ is also a valid bQF.
+
+Therefore, valid bivariate quantile-parameterized QFs can be created by constructing the conditional quantile functions as Gilchrist combinations of univariate quantile-parameterized QFs. @fig-bq-myerson shows 1000 samples from the bivariate distribution created by adding together two Myerson distributions. Note that in this case, only the marginal distribution of $x_1 = Q_1(u_1)$ is available in closed form.
+
+$$
+\begin{aligned}
+(u_1, u_2) &\overset{X_1, X_2}{\backsim} (Q_1(u_1), Q_1(u_1)+Q_2(u_2))\\
+Q_1(u_1) &\sim\text{Myerson}(3,7,10; 0.1)\\
+Q_2(u_2) &\sim \text{Myerson}(-9, -3, 2; 0.25)\\
+\end{aligned}
+$$
+
+This bQF is easy to elicit and interpret, since $Q_2(u_2)$ can be thought of as a random adjustment to the value of $Q_1(u_1)$. In fact, the conditional quantile function $Q_{21}(u_2\vert u_1)$ can be thought of as having the classical form $Q_{21}(u_2\vert u_1) = \mu(u_1) + \sigma Q_2(u_2)$ [@gilchrist2000StatisticalModellingQuantile], where the location is randomly varying with $\mu(u_1) = Q_1(u_1)$ and the scale parameter $\sigma = 1$. First, the marginal distribution $Q_1(u_1)$ is elicited, and then the difference between the values $x_1$ and $x_2$ can be elicited as a QPT and encoded as $Q_2(u_2)$.
+
+```{r}
+#| label: fig-bq-myerson
+#| echo: false
+#| out-width: "80%"
+#| fig-cap: "Samples from the Bivariate Myerson quantile function"
+#| fig-align: 'center'
+#| warning: false
+
+n <- 1e4
+set.seed(42)
+bq_df <- tibble::tibble(
+  u1=runif(n),
+  u2=runif(n),
+  x1=qMyerson(u1, 3,7,10, 0.25),
+  x2=x1+qMyerson(u2, -9, -3, 2, 0.1)
+)
+p1 <- ggplot(bq_df, aes(x1, x2))+
+    geom_point(alpha=0.1)+
+    geom_density2d()+
+    geom_vline(xintercept = c(3,7,10), color="grey30", linetype=2)+
+    hrbrthemes::theme_ipsum_rc(grid_col="grey90")+
+    labs(x="x1 ~ Myerson(3,7,10; 0.25)")
+
+ggMarginal(p1, type="densigram", color="royalblue",
+           fill="grey30")
+```
+
+# Discussion
+
+Quantile-based distributions have garnered significant attention in the research community. Several distributions, such as the Generalized Lambda Distribution (GLD)  [@freimer1988StudyGeneralizedTukey; @ramberg1974ApproximateMethodGenerating], the g-and-k distribution [@haynes1997RobustnessRankingSelection; @haynes2005BayesianEstimationGandk; @jacob2017LikelihoodCalculationGandk;@prangle2017GkPackageGandk], the g-and-h distribution [@field2006MultivariateGandhDistribution; @macgillivray1992ShapePropertiesGandh; @rayner2002NumericalMaximumLikelihood], and the Wakeby distribution [@jeong-soo2005WakebyDistributionMaximum; @rahman2015ApplicabilityWakebyDistribution; @tarsitano2005FittingWakebyModel], have been extensively studied and documented in the literature. These distributions are defined by non-invertible quantile functions [@perepolkin2023TenetsQuantilebasedInference]. However, the research on quantile-parameterized distributions remains relatively unexplored. These distributions offer interpretable parameters that are defined on the same scale as the quantities of interest, simplifying the elicitation process for experts. Many popular elicitation protocols for both predictive and parametric elicitation rely on the assessment of quantile-probability pairs (QPPs). Instead of fitting a parametric distribution to the elicited QPPs [@best2020PriorElicitation; @ohagan2019ExpertKnowledgeElicitation], assessors could directly use the elicited QPPs as inputs into one of the QPD quantile functions, which can be easily employed in both quantile-parameterized and parametric models.
+
+Provided that the expert and the elicitor agree on the scientific model to be used for representing the expert's understanding of the world [@burgman2021ElicitingModelStructures], several types of inputs may be required to inform the model. Among those are the expert's judgement about the model *parameters* [@mikkola2021PriorKnowledgeElicitation; @ohagan2019ExpertKnowledgeElicitation] and their *predictions* of the next observation [@akbarov2009ProbabilityElicitationPredictive; @kadane1998ExperiencesElicitation; @winkler1980PriorInformationPredictive]. Both parametric and predictive judgments should be captured together with corresponding uncertainties to reflect the expert's state of knowledge. 
+
+Quantile-parameterized distributions offer distinct advantages as high-fidelity priors that precisely capture expert assessments. These distributions are particularly beneficial for domain experts who may not be well-versed in statistics, as they provide high flexibility while retaining parameter interpretability. As a result, QPDs can faithfully represent an expert's beliefs without compromising convenience or precision. 
+
+Different quantile-parameterized distributions fitted to the same set of quantile-probability pairs may exhibit slight variations in shape. However, given the diverse range of QPDs proposed in the literature a knowledgeable assessor should be able to select an appropriate distribution and validate the choice with the expert, taking into account the thickness of the distribution tails.
+
+Most QPDs we reviewed are parameterized by a symmetric percentile triplet (SPT). These distributions rely on the symmetric property of underlying *kernel* distributions and can be generalized by swapping the distribution with another one that exhibits different tail shapes. @hadlock2019GeneralizedJohnsonQuantileParameterized utilized this method to generalize Johnson Quantile Parameterized distributions (J-QPDs). We show that the variants of Myerson distribution appearing in the literature [@myerson2005ProbabilityModelsEconomic; @wilson2023ReconciliationExpertPriors] represent similar generalization. This principle can be extended to include other kernels which result in varying thickness of the tails.
+
+### Quantile function perspective {.unnumbered}
+
+The distributions discussed in this paper are defined using the quantile function and, therefore, they can be considered *quantile-based* quantile-parameterized distributions. Myerson, J-QPD, and several other quantile-parameterized distributions reparameterize conventional distributions, utilizing Gilchrist's transformations (@tbl-qf-trans). 
+
+@perepolkin2023TenetsQuantilebasedInference demonstrated that the distributions defined by quantile function can be used both as prior and as likelihood in Bayesian models. Priors defined by quantile function eliminate the need to compute prior density. The quantile function acts as a non-linear transformation of a uniform degenerate random variate with the resulting Jacobian adjustment reciprocal to the density quantile function. Therefore, both the Jacobian and the density quantile function are omitted from the Bayesian updating equation  [@perepolkin2023TenetsQuantilebasedInference]. When using quantile-based QPDs as likelihood, special care needs to be taken with regards to the suitable prior for the QPP parameters. @perepolkin2021HybridElicitationIndirect used the Dirichet-based prior for the metalog likelihood model and descibed the *hybrid* elicitation process for encoding the expert judgments into the two-dimensional prior distribution implied by the model. Alternatively, @wilson2023ReconciliationExpertPriors used multivariate normal distribution for the interquantile distances. This approach requires specification of the covariance structure, which might be difficult to elicit.
+
+Not all QPDs are equally reliable in approximating the underlying distributions. Violating the QF transformation rules imposes additional constraints on the feasibility of parameters, as certain combinations of parameters may result in locally decreasing quantile functions [@keelin2016MetalogDistributions; @hadlock2017QuantileparameterizedMethodsQuantifying]. 
+
+### Multivariate extensions {.unnumbered}
+
+Quantile-parameterized distributions can be readily extended to the multivariate setting by leveraging traditional multivariate distributions. The combination of quantile-based marginal distributions joined by the multivariate normal has been previously discussed in the literature  [@drovandi2011LikelihoodfreeBayesianEstimation; @hoff2007ExtendingRankLikelihood]. Building on this approach, we proposed the use of Gumbel's bivariate logistic distribution [@gumbel1961BivariateLogisticDistributions] to combine quantile-parameterized Logit-Myerson distributions [@wilson2023ReconciliationExpertPriors].
+
+Copulas offer a natural extension of univariate QPDs into the multivariate domain. Bivariate copulas can be assembled into more complex structures using vine copulas [@czado2019AnalyzingDependentData; @kurowicka2011DependenceModelingVine; @wilson2018SpecificationInformativePrior]. Flexible QPDs serve as a viable alternative to empirical copulas, where the margins are represented by kernel density estimation (KDE) or other non-parametric approaches. Poorly fitted marginal distributions mean *less-than-ideal* starting point for copula modeling, due to potential deviations from uniformality of the copula margins.
+
+Quantile-parameterized distributions defined by quantile function are particularly well-suited for constructing new distributions using bivariate quantiles [@nair2023PropertiesBivariateDistributions; @vineshkumar2019BivariateQuantileFunctions]. The ability to construct a conditional quantile function as a linear combination of univariate quantile functions offers a convenient and interpretable approach to defining bivariate distributions, especially when the univariate quantile functions are parameterized by quantiles. These distributions are easy to sample from and construct. However, fitting these distributions to data can be challenging. As shown by @castillo1997FittingContinuousBivariate the fitting process requires all marginal and conditional quantile functions to be available in closed form, which is often unattainable.
+
+### Further research {.unnumbered}
+
+There appears to be a limited availability of unbounded quantile-parameterized distributions in the current literature. Among the distributions we examined, only the metalog distribution can extend across the entire real line. The G-QPD system provides clear distributional bounds explicitly defined by the expert during elicitation. In contrast, the (Generalized) Myerson distribution system relies on implicit bounds that need to be communicated to the expert. Most of the distributions we reviewed are characterized by a symmetrical percentile triplet (SPT), as they rely on the symmetrical property of their kernels. However, there may be situations where an arbitrary (non-symmetrical) quantile parameterization could prove valuable [as shown by @perepolkin2021HybridElicitationIndirect]. The development of flexible quantile-parameterized distributions defined by an arbitrary set of quantile-probability pairs can enhance versatility of QPDs and facilitate their broader adoption.
+
+In conclusion, quantile-parameterized distributions offer a valuable framework for capturing expert assessments and incorporating them into statistical models. They provide high flexibility and parameter interpretability, making them particularly beneficial for domain experts. The diverse range of quantile-parameterized distributions explored in the literature allows for customized modeling approaches that align with the expert's beliefs and uncertainties. By embracing these innovative distributions, researchers and practitioners can enhance the accuracy and reliability of their statistical models while leveraging expert knowledge effectively.
+
+# Miscellaneous{-}
+
+## Acknowledgments{-}
+
+The authors have no conflict of interest to declare. We thank the editorial team and reviewers for their constructive feedback which helped us improve this manuscript.
+
+## ORCID{-}
+Dmytro Perepolkin https://orcid.org/0000-0001-8558-6183   
+Erik Lindström https://orcid.org/0000-0002-6468-2624  
+Ullrika Sahlin http://orcid.org/0000-0002-2932-6253  
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
