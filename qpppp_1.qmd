@@ -581,7 +581,7 @@ However, not all combinations of parameters $\mathbf{a}$ in metalog and SQN dist
 
 ## Triangular and Two-Sided Power distributions
 
-Kotz and van Dorp [@kotz2004BetaOtherContinuous] describe the quantile-parameterized version of the triangular distribution [@johnson1997TriangularDistributionProxy]. This bounded distribution is widely used in the finance and insurance industry and is popularized by the \@Risk software package, developed by Palisade [@palisadecorporation2009GuideUsingRISK]. The triangular distribution is parameterized by the two quantiles $q_{a}$ and $q_{b}$, and the mode $m$, subject to the constraint that $a\leq q_a\leq m\leq q_b\leq b$, where $a$ and $b$ represent the lower and upper bounds, respectively. The standard quantile function for the triangular distribution is expressed in terms of the bounds $a$, $b$, and the mode $m$.
+@kotz2004BetaOtherContinuous describe the quantile-parameterized version of the triangular distribution [@johnson1997TriangularDistributionProxy]. This bounded distribution is widely used in the finance and insurance industry and is popularized by the \@Risk software package, developed by Palisade [@palisadecorporation2009GuideUsingRISK]. The triangular distribution is parameterized by the two quantiles $q_{a}$ and $q_{b}$, and the mode $m$, subject to the constraint that $a\leq q_a\leq m\leq q_b\leq b$, where $a$ and $b$ represent the lower and upper bounds, respectively. The standard quantile function for the triangular distribution is expressed in terms of the bounds $a$, $b$, and the mode $m$.
 
 $$
 \begin{gathered}
