@@ -214,7 +214,7 @@ ggplot(df_qs)+
 
 ```
 
-Unfortunately the size of the paper does not allow us to include detailed examples like this in the text. We hope for your understanding.
+We refer to similar analysis for Myerson distributions in Figures 3-4 of the paper.
 
 :::{.callout-note}
 Additionally, how precise are the area boundaries in these plots? The "robust alternatives to moments" are functions of a few quantiles, which do not encapsulate information about the entire distribution as raw moments do.
