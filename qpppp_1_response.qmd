@@ -1,0 +1,233 @@
+---
+title: "Quantile-parameterized distributions for expert knowledge elicitation"
+subtitle: "Response to reviewers"
+author:
+  - "(Authors’ names blinded for peer review)"
+format: 
+  pdf:
+    papersize: a4
+bibliography: qpppp1-response.bib
+---
+
+```{r}
+#| include: false
+#| echo: false
+if(!interactive())
+    rbbt::bbt_write_bib("qpppp1-response.bib", translator = "bibtex", overwrite = TRUE)
+```
+
+
+# Reviewer 1
+:::{.callout-note}
+### General
+The manuscript is a well written review paper, but it is missing some important references in the context of ”Quantile-parameterized distributions for expert knowledge elicitation” that ought to be included. Below I am providing those references and the context in which they should be included in the review paper. In addition, some minor suggestions are provided at the end of the review.
+:::
+
+Thank you very much for your suggestions and extensive bibliography! We have reviewed the references you suggested and included them accordingly. Please, find our detailed response below.
+
+:::{.callout-note}
+### Comment 1 
+The manuscript should mention that the classical beta distribution is uniquely defined by a lower quantile and an upper quantile. Since decision analysis tends to deal with elicitation of probabilities (with the beta distribution often serving as a prior distribution for those probabilities) this is particularly relevant. @vandorp2000SolvingParametersBeta proved existence of a solution of beta parameters given a lower and upper quantile is, while @shih2015ModelIdentificationBetaa proved uniqueness of that solution. @vandorp2000SolvingParametersBeta describes the procedure to solve for the beta distribution parameters.
+:::
+
+Thank you for this suggestion. We added a few paragraphs regarding reparameterization of classical distributions (both location-scale family and shape-based distributions) in Section 3.5 and included the references you provided.
+
+:::{.callout-note}
+### Comment 2 
+In the same vain, it is worthy to mention in Section 4 regarding quantile parameterized multivariate distributions that the Dirichlet and the ordered Dirichlet distribution serve as multivariate priors for a set of probabilities with dependence between the uncertainty distributions for those probabilities. The marginal distributions of the Dirichlet distribution and the ordered Dirichlet distribution are beta distributions. The publication by @vandorp2004ParameterSpecificationBeta specifies the procedures for eliciting the parameters of a Dirichlet and Ordered Dirichlet distribution from a set of quantiles while taking advantage of the procedure specified in @vandorp2000SolvingParametersBeta.
+:::
+
+Thank you for bringing this to our attention. While we would be delighted to include the discussion of Dirichlet distribution into the section about multivariate versions of QPDs, we dont feel that it is within the scope of the present paper. Even if we were to accept that Beta is a quantile-parameterized distribution (which we argue it is not), the method of construction of Dirichlet from marginal beta distributions does not fall under any of the methods described in this section (multivariate standard distributions, copulas or bivariate quantiles). Therefore, describing Dirichlet and Ordered Dirichlet would require us to add a separate subsection under the Multivariate QPDs which would increase the length of the paper beyond the target length for this journal. We are terribly sorry we can not include all suggestions in this paper and hope for your understanding.
+
+
+:::{.callout-note}
+### Comment 3 
+Right at the beginning subsection 3.5 it should be stated that the lower and upper bound parameters of a quantile-parameterized triangular distributions need to be solved from a lower and upper quantile given the most likely value. Rather than referencing again @kotz2004BetaOtherContinuous when applying the same procedure to Two-Sided Power (TSP) distributions for fixed power parameter $n > 0$ ($n = 2$ in case of a triangular distribution), it is better to reference @kotz2005LinkTwosidedPower. 
+:::
+
+The third sentence in subsection 3.5 starts with
+
+> The triangular distribution is parameterized by the two quantiles $q_a$ and $q_b$, and the mode $m$...
+
+We included the reference to @kotz2005LinkTwosidedPower in the section discussing the TSP distribution.
+
+:::{.callout-note}
+By letting the fixed power parameter $n \rightarrow \infty$, @kotz2005LinkTwosidedPower arrive at a quantile parameterized asymmetric Laplace distribution with unbounded support $(−\infty, \infty)$. The authors of this manuscript, specifically mention the need for research in unbounded quantile parameterized distributions in their further research section. Thus that quantile parameterized asymmetric Laplace distribution should be mentioned there. The quantile parameterized asymmetric Laplace distribution has further relevance to decision analysis as a field, since it provides for alternative methods of three point mean and variance approximations that are so classical to early decision analysis methods (see,
+e.g. @pearson1965ApproximateMeansStandard; @moder1968JudgmentEstimatesMoments; @keefer1983ThreepointApproximationsContinuous; @keefer1993BetterEstimationPERT; @perry1975EstimatingMeanVariance; @davidson1980ImplementingEffectiveRisk; @clemen1996MakingHardDecisions).
+:::
+
+Thank you we added a sentence mentioning the limiting case of an Assymmetric Laplace distribution in Section 3.5.
+
+:::{.callout-note}
+### Comment 4
+Rather than solving for the lower bound and upper bound, as under Comment 3, @vandorp2021ThreepointLifetimeDistribution prove in their appendix that a lower quantile, a mode and an upper quantile, uniquely determine the left power and right branch power parameters $m, n > 0$ of a Generalized Two-Sided Power distribution (GTSP) [@herrerias-velasco2009GeneralizedTwosidedPower] given a fixed arbitrary bounded support [a, b]. Hence, that support can be selected arbitrarily large. An algorithm to solve for the power parameters $m, n > 0$ for the quantile-parameterized (GTSP) distribution is provided in @vandorp2021ThreepointLifetimeDistribution. More recently, @vandorp2023GeneralizedTwosidedBeta applied that same algorithm to solve for the left and right branch power parameters $m, n > 0$ of the novel Generalized Two-Sided Beta (GTSB) distribution. The quantile parameterized GTSB distribution is a smooth alternative for the quantile parameterized GTSP distribution.
+:::
+
+Thank you we added the respective text in this section.
+
+:::{.callout-note}
+### Comment 5 
+In the introduction and the further research section, it should be mentioned that quantile parameterized distributions with unbounded support do not control the heaviness of the tail beyond the most extreme quantile specified. Rather that tail heaviness is determined by the parametric distribution that is fitted to the quantile parameterization. 
+:::
+
+Thank you we added the respective text in the augmented Section 3.6 and in the the Discussion section.
+
+:::{.callout-note}
+In the context of the further research section, and related to controlling for tail heaviness, a recently published paper by @vandorp2024TwosidedDistributionsApplications introduce Two-Sided power Burr and Two-Sided beta Burr distributions with support $[0, \infty)$ that are parameterized via a lower quantile, a most-likely value, an upper quantile and a specified value for the Conditional-Value-at-Risk (CVaR) beyond the most extreme quantile. Similar to the quantile parameterized asymmetric Laplace distribution, the Two-Sided power Burr is not smooth at its mode, whereas the Two-Sided beta Burr distributions is smooth. The CVaR value controls the tail heaviness beyond the extreme quantile. An algorithm to solve for the parameters of various four-parameter sub-families given a lower quantile, a mode, a lower quantile and a CVaR value is provided in @vandorp2024TwosidedDistributionsApplications.
+:::
+
+While we appreciate these latest developments, we believe parameterization by CVaR is outside of scope of our paper. We hope for your understanding.
+
+:::{.callout-note}
+### Comment 6
+
+Please explain if SPTs are required for the various quantile parameterized distributions in the paper or if that is done for convenience as one parameter less needs to be specified by the expert. FYI, in the distributions mentioned on Comment 1 through 5 symmetric quantile specification is not a requirement.
+:::
+
+Thank you for this suggestion! We elaborated on the SPT parameterization in the Section 3.6 "Choosing quantile-parameterized distribution".
+
+## Minor comments
+
+:::{.callout-note}
+Page 6, Line 44: Write f [Q(u)]q(u) instead of f (Q(u))q(u). Through-
+out the manuscript please follow a bracketing convention. For example, {[(·)]}.
+:::
+
+Thank you for this suggestion. We reserve the use of curly braces to indication of sets, e.g. $i\in \{1,2\}$. This principle is adhered to from the very first equation introduced on page 5 (quantile function) and throughout the rest of the paper. We are, therefore, restricting ourselves to using only brackets and parenthesis in math formulas. 
+
+Our goal in the bracketing approach is to make the composition of quantile functions explicit by using consistent bracketing pattern. For example, when discussing the quantile function of Johnson SU distribution we introduce it as $Q_{SU}(u)=\xi + \lambda\text{sinh}[\delta(S(u)+\gamma)]$. The parenthesis by the $\delta$ here are incidental and the funciton could very well be written as  $Q_{SU}(u)=\xi + \lambda\text{sinh}[\delta S(u)+\delta\gamma]$. Later when we discuss asinh-transformed Johnson SU used in J-QPD-S, we write it as  $Q_{SU_a}(u)=\xi + \lambda\text{sinh}[\text{asinh}(\delta S(u))+\text{asinh}(\delta\gamma)]$. Here, we are highlighting the structure of the quantile function by using consistent square brackets around the `sinh` function and leaving the rest to parentheses. Following the strict ${[(\cdot)]}$ pattern would make the function composition less explicit by randomly breaking the pattern depending on the nesting depth. We went through the text and replaced parenthesis with brackets where possible retaining the consistency and the logical flow aiming to allow **no more than two levels of nesting** for parentheses. We also tried to make the structure explicit by using different bracket sizes where appropriate. Thank you for understanding!
+
+:::{.callout-note}
+Page 25, Line 14: Please use the bracketing convention: {[(·)]}.
+Also please use formula numbering throughout the manuscript.
+:::
+
+Thank you for this comment. We made the bracketing consistent between the formulas in line 14 and line 41. The parentheses are never nested more than 2 levels deep.
+
+Some of the formulas in the manuscript are quite substantial in size. The INFORMS template enforces the strict restriction for the width of the formulas (to later fit the two-column format of the publishing template). We therefore had to often break the math formulas into several lines to stay within the alloted textbox. The formula numbering often breaks the limits of the textbox and ends up on a new line, which looks strange and consumes valuable space. 
+
+Our approach to handling this limitation was to restrict cross-referencing of equations to local references ("formula above", "see below", etc). We understand the value of numbered formulas and would gladly number the equations if not for this technical typesetting limitation. Our attempts so far were unsuccessful. Thank you for understanding.
+
+
+:::{.callout-note}
+Page 26, Line 45: Please use the bracketing convention: {[(·)]}.
+Also please use formula numbering throughout the manuscript.
+Page 31, Line 56: Please use the bracketing convention: {[(·)]}.
+Also please use formula numbering throughout the manuscript.
+:::
+
+Thank you for these suggestions. As mentioned earlier, we did not feel that using braces in display equations is justified and we tried to limit ourselves to using brackets and parentheses only (arranged strategically to highlight QF composition and allowing no more than two levels of nestedness).
+
+:::{.callout-note}
+Page 40: Please continue the use of formula numbering in the Appendix and the same bracketing convention {[(·)]}. Also be consistent in the use of small and large brackets. See, e.g., page 42 line 44.
+:::
+
+Thank you for this suggestion. We revised the Appendix to using the principles of bracketing outlined above. We substantiated the reasoning for omitting formula numbering above.
+
+:::{.callout-note}
+Page 41, Line 40: Write F (·) instead of F ().
+Page 42, Line 3: Write f (·) instead of f ().
+:::
+
+Thank for for this. We revised the manuscript to include the $\cdot$ and consistent bracketing wherever the function is referred to. 
+
+
+# Reviewer 2
+
+:::{.callout-note}
+The manuscript surveys the various quantile-parameterized distributions (QPDs) in the literature and presents them in a consistent framework. QPDs are flexible probabilistic models of uncertain quantities, often with particular convenience and ease of application for modeling expert judgment. This area has seen much development in recent years, but to date lacks a comprehensive overview. To my knowledge, this is a thorough survey of the literature, and I'm not aware of any QPDs not covered here. It would serve as a good gateway to the literature for researchers and practitioners new to the area.
+:::
+
+Thank you for your support! We are glad you found our review paper informative and useful.
+
+:::{.callout-note}
+My concern is that there isn't enough discussion of practical application issues or guidance for the practitioner, especially given that the title emphasizes application to "expert knowledge elicitation," and the stated intention is "to introduce quantile-parameterized distributions (QPDs) to a wide readership." While citations for each type of distribution typically provide some of this information, a dedicated section compiling advice would significantly enhance the work's value.
+
+I recommend a dedicated section that outlines criteria or situations that would necessitate or best suit the various QPDs and approaches described. A comprehensive table (and supporting discussion) that summarizes the boundedness, tail thickness, quantiles used as parameters, range of flexibility, etc. would be useful.
+
+Section 3.6 is titled "Choosing quantile parameterized distribution," but it doesn't give direct guidance to choosing a distribution. It presents some discussion and plots of robust skewness versus robust kurtosis measures that may be helpful for identifying applicable QPDs for a specific situation. The plots show for which of these robust measures the distribution families are feasible, but beyond this do not help with choosing the most appropriate distribution. For example, if the robust skewness and kurtosis of the elicited quantiles can be accommodated by multiple distributions, what other considerations are needed to help choose the most appropriate one? How should a practitioner choose between the G-QPD, Meyerson, and metalog distributions if they were all feasible for the elicited information?
+:::
+
+We substantially expanded the Section 3.6 "Choosing quantile-parameterized distribution" to include the guidance for selecting a QPD and added Figure 8 comparing various distributions and their support, parameterization etc. The figure and the accompanying text break down the distributions by the type of parameterization and boundedness. We envisage that Figure 8 could be used as a guide when determining which distribution to pick for a particular elicitation problem. The "leaf nodes" in the figure list the distributions available for that type of parameterization and bounding in the order of increased robust kurtosis for the same skewness, which translates into thicker tails outside of the parameterizing quantiles. For example, using in case of 0.25-SPT parameterization $q=\{4, 9, 17\}$ of semi-bounded quantity with an explicit lower bound of 0, an expert can select between J-QDP-S, Metalog and G-QDP-S distributions. 
+
+```{r}
+#| label: tbl-qmom
+#| tbl-cap: "Robust moments of some QPDs. q={4, 9, 17}, alpha=0.25"
+options(tidyverse.quiet = TRUE)
+library(qpd)
+library(tidyverse)
+q1 <- 4; q2 <- 9; q3 <- 17
+alpha <- 0.25
+mtlg_a <- fit_metalog(p=c(alpha, 0.5, 1-alpha), q=c(q1, q2, q3), bl=0)
+stopifnot(is_metalog_valid(mtlg_a, bl=0))
+
+df_skkr <- tibble::tibble(
+  name= c("JQPDS", "Metalog", "GQPDS_Logis", "GQPDS_Cauchy"),
+  qsk = c(qsk_qf(qpd::qJQPDS, q1=q1, q2=q2, q3=q3, lower=0, alpha=alpha),
+        qsk_qf(qpd::qmetalog, mtlg_a, bl=0),
+        qsk_qf(qpd::qGQPDS, q1=q1, q2=q2, q3=q3, lower=0, alpha=alpha, 
+                qf=stats::qlogis),
+        qsk_qf(qpd::qGQPDS, q1=q1, q2=q2, q3=q3, lower=0, alpha=alpha, 
+                qf=stats::qcauchy)),
+  qkr = c(qkr_qf(qpd::qJQPDS, q1=q1, q2=q2, q3=q3, lower=0, alpha=alpha),
+          qkr_qf(qpd::qmetalog, mtlg_a, bl=0),
+          qkr_qf(qpd::qGQPDS, q1=q1, q2=q2, q3=q3, lower=0, alpha=alpha, 
+                qf=stats::qlogis),
+          qkr_qf(qpd::qGQPDS, q1=q1, q2=q2, q3=q3, lower=0, alpha=alpha, 
+                qf=stats::qcauchy))
+  )
+knitr::kable(df_skkr, 
+        col.names = c("Distribution", "Robust Skewness", "Robust Kurtosis"))
+```
+
+Because quantiles used for parameterization coincide with the quantiles used for robust skewness, the values of robust skewness is the same for all distributions (@tbl-qmom). However, the values of robust kurtosis are higher for GQPDS compared to JQPDS because of thicker tails of the underlying kernel distribution. Metalog is an alternative reparameterization of the Logistic QF so the kurtosis will be comparable to that of GQPDS with the Logistic kernel. The right tail of distributions with higher robust kurtosis is visibly thicker (@fig-qfs)
+
+```{r}
+#| label: fig-qfs
+#| fig-cap: "Quantile functions of some QPDs. q={4, 9, 17}, alpha=0.25"
+#| fig-width: 10
+#| fig-height: 5
+#| out-width: 100%
+df_par <- tibble::tibble(
+  ps=c(alpha, 0.5, 1-alpha),
+  qs=c(q1, q2, q3)
+)
+
+df_qs <-tibble::tibble(
+  us = ppoints(200),
+  JQPDS = qJQPDS(us, q1=q1, q2=q2, q3=q3, lower=0, alpha=alpha),
+  Metalog = qpd::qmetalog(us, mtlg_a, bl=0),
+  GQPDS_Logis = qGQPDS(us, q1=q1, q2=q2, q3=q3, lower=0, alpha=alpha, 
+            qf=stats::qlogis),
+  GQPDS_Cauchy = qGQPDS(us, q1=q1, q2=q2, q3=q3, lower=0, alpha=alpha, 
+            qf=stats::qcauchy)
+) |>
+  pivot_longer(-us)
+
+ggplot(df_qs)+
+  geom_line(aes(x=us, y=value, color=fct_rev(name)))+
+  geom_point(data=df_par, aes(x=ps, y=qs))+
+  coord_cartesian(ylim=c(0, 75))+
+  theme_minimal() +
+  labs(x="u", y="Q(u)", color="Distribution")
+
+
+```
+
+Unfortunately the size of the paper does not allow us to include detailed examples like this in the text. We hope for your understanding.
+
+:::{.callout-note}
+Additionally, how precise are the area boundaries in these plots? The "robust alternatives to moments" are functions of a few quantiles, which do not encapsulate information about the entire distribution as raw moments do.
+
+The discussion and plots in section 3.6 are useful, but the discussion is incomplete. They could be incorporated into a broader application and recommendations for practice section I mentioned above.
+:::
+
+The area boundaries are precise for the set of quantiles used in calculation fo robust moments (i.e. quartile and octiles). If the selected quantiles would change, the plot will look somewhat different. When introducing Figures 5-7 we explicitly say that they use "quartile/octile-based robust metrics of skewness and kurtosis".
+
+:::{.callout-note}
+One other minor point: the author(s) should define "depth." Although its meaning can be inferred from its use in context, this is not a common term in the literature I'm aware of.
+:::
+
+Thank you for this suggestion. Introduction of the term "depth" connects this research to our subsequent work. We added a sentence clarifying the use of this term in Section 2.
+
+# References
