@@ -982,6 +982,10 @@ There appears to be a limited availability of unbounded quantile-parameterized d
 
 In conclusion, quantile-parameterized distributions offer a valuable framework for capturing expert assessments and incorporating them into statistical models. They provide high flexibility and parameter interpretability, making them particularly beneficial for domain experts. The diverse range of quantile-parameterized distributions explored in the literature allows for customized modeling approaches that align with the expert's beliefs and uncertainties. By embracing these innovative distributions, researchers and practitioners can enhance the accuracy and reliability of their statistical models while leveraging expert knowledge effectively.
 
+# Acknowledgments {.unnumbered}
+
+We thank the editorial team and reviewers for their constructive feedback which helped us improve this manuscript.
+
 # References {.unnumbered}
 
 ::: {#refs}
